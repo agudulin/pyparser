@@ -38,12 +38,18 @@ classname: ID
            }
 ;
 inheritance: /* empty */
+             {
+                 $$ = "";
+             }
            | LBRACE class_args_list RBRACE
              {
                  $$ = $2;
              }
 ;
 class_args_list: /* empty */
+                 {
+                     $$ = "";
+                 }
                | class_arg
                  {
                      $$ = $1;
@@ -82,6 +88,9 @@ parameters: LBRACE func_args_list RBRACE
             }
 ;
 func_args_list: /* empty */
+                {
+                    $$ = "";
+                }
               | func_arg
                 {
                     $$ = $1;
