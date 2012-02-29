@@ -38,15 +38,15 @@ quote2          "\""[^"\\]*"\""
                     int newIndent = countIndent(yytext);
                     if (newIndent > currentIndent) {
                         #ifdef DEBUG
-                        cout << "INDENT ->" 
-                             << newIndent-currentIndent << endl;
+                            cout << "INDENT ->" 
+                                 << newIndent-currentIndent << endl;
                         #endif
                         currentIndent = newIndent;
                     } 
                     else if (newIndent < currentIndent) {
                         #ifdef DEBUG
-                        cout << "DEDENT <- " 
-                             << currentIndent-newIndent << endl;
+                            cout << "DEDENT <- " 
+                                 << currentIndent-newIndent << endl;
                         #endif
                         currentIndent = newIndent;
                    }

@@ -5,11 +5,6 @@
     using namespace std;
     #define DEBUG
     #define YYSTYPE string
-
-    string className  = "";
-    string funcName   = "";
-    string funcParams = "";
-    string classInheritance = "";
     
     int yylex(void);
     void yyerror(const char *str) {
@@ -30,25 +25,28 @@ input: /* empty */
 /* CLASS */
 class_def: CLASS classname inheritance COLON suite
     {
-        className = $2;
         #ifdef DEBUG
-            cout << "Class: " << className
-                 << ": child to: " << classInheritance << endl;
+            cout << "Class: "      << $2
+                 << ": child to: " << $3 
+                 << endl;
         #endif
     }
 ;
-classname: ID 
+classname: ID
            {
                $$ = $1;
            }
 ;
 inheritance: /* empty */
            | LBRACE class_args_list RBRACE
+             {
+                 $$ = $2;
+             }
 ;
 class_args_list: /* empty */
                | class_arg
                  {
-                     classInheritance = $1;
+                     $$ = $1;
                  }
 ;
 class_arg: ID
@@ -67,23 +65,26 @@ class_arg: ID
 func_def: DEF funcname parameters COLON suite
           {
               #ifdef DEBUG
-                  cout << "Function: " << funcName
-                       << "(" << funcParams << ")" << endl;
+                  cout << "Function: " << $2
+                       << "("          << $3 
+                       << ")"          << endl;
               #endif
-              funcParams = "";
           }
 ;
 funcname: ID
           {
-              funcName = $1;
+              $$ = $1;
           }
 ;
 parameters: LBRACE func_args_list RBRACE
+            {
+                $$ = $2;
+            }
 ;
 func_args_list: /* empty */
               | func_arg
                 {
-                    funcParams = $1;
+                    $$ = $1;
                 }
 ;
 func_arg: ID
