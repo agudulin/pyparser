@@ -6,29 +6,70 @@
     #define YYSTYPE string
 
     #include "pyparser.tab.h"
+
+    int currentIndent = 0;
+    int countIndent(string);
+    char projectIndent;
+    bool isStartIndentSet = false;
 %}
 
 identifier      [_a-zA-Z][_a-zA-Z0-9]*
+defined         "and"|"elif"|"global"|"or"|"assert"|"else"|"if"|"except"|"pass"|"break"|"import"|"print"|"exec"|"in"|"raise"|"continue"|"finally"|"is"|"return"|"for"|"lambda"|"try"|"del"|"from"|"not"|"while"
 comment         "#".*
 quote1          "\'"[^'\\]*"\'"
 quote2          "\""[^"\\]*"\""
 
 %%
-and|elif|global|or|assert|else|if|except|pass|break|import|print|exec|in|raise|continue|finally|is|return|for|lambda|try|del|from|not|while yylval = yytext; return DEFINED;
-class           yylval = yytext; return CLASS;
-
+\n\r|\r\n|\n|\r ; /* skip empty line */
+{comment}       ; /* skip comment */
+{defined}       {
+                    yylval = yytext; 
+                    return DEFINED;
+                }
+^[ \t]+         {
+                    if(!isStartIndentSet) {
+                        projectIndent = yytext[0];
+                        isStartIndentSet = true;
+                    }
+                    cout << yytext;
+                    int newIndent = countIndent(yytext);
+                    if (newIndent > currentIndent) {
+                        cout << "INDENT ->" 
+                             << newIndent-currentIndent << endl;
+                        currentIndent = newIndent;
+                    } 
+                    else if (newIndent < currentIndent) {
+                        cout << "DEDENT <- " 
+                             << currentIndent-newIndent << endl;
+                        currentIndent = newIndent;
+                   }
+                }
+class           {
+                    yylval = yytext;
+                    return CLASS;
+                }
+def             {
+                    yylval = yytext;
+                    return DEF;
+                }
 ":"             yylval = yytext; return COLON;
 "."             yylval = yytext; return DOT;
+","             yylval = yytext; return COMMA;
 "("             yylval = yytext; return LBRACE;
 ")"             yylval = yytext; return RBRACE;
 
 {identifier}    yylval = yytext; return ID;
-{comment}       ; /* skip comment */
 
 {quote1}        ; /* skip messages in single quotes */
 {quote2}        ; /* skip messages in double quotes */
 
 [ \t]+          ; /* skip whitespaces */
-\n\r|\r\n|\n|\r ; /* skip new line */
 .               yylval = yytext; return OTHER;
 %%
+
+int countIndent(string str)
+{
+    if(projectIndent != str[0])
+        cout << "WTF :( TABS and SPACES are in one file" << endl;
+    return str.size();
+}
