@@ -1,8 +1,3 @@
-/*
-TODO: - не обрабатывать параметры - хранить полную строку
-      - по поводу полиморфизма узнать
-*/
-
 %{
     #include <string>
     #include <iostream>
@@ -14,6 +9,7 @@ TODO: - не обрабатывать параметры - хранить пол
     string className  = "";
     string funcName   = "";
     string funcParams = "";
+    string classInheritance = "";
     
     int yylex(void);
     void yyerror(const char *str) {
@@ -22,7 +18,7 @@ TODO: - не обрабатывать параметры - хранить пол
     int main();
 %}
 
-%token CLASS DEFINED COLON DOT LBRACE RBRACE ID OTHER DEF COMMA EQUAL
+%token CLASS DEFINED COLON DOT LBRACE RBRACE ID OTHER DEF COMMA
 
 %%
 input: /* empty */
@@ -34,49 +30,48 @@ input: /* empty */
 /* CLASS */
 class_def: CLASS classname inheritance COLON suite
     {
+        className = $2;
         #ifdef DEBUG
-            cout << "Class: " << className << endl;
+            cout << "Class: " << className
+                 << ": child to: " << classInheritance << endl;
         #endif
     }
 ;
-classname: ID
-            {
-                className = $1;
-            }
+classname: ID 
+           {
+               $$ = $1;
+           }
 ;
 inheritance: /* empty */
            | LBRACE class_args_list RBRACE
 ;
 class_args_list: /* empty */
                | class_arg
+                 {
+                     classInheritance = $1;
+                 }
 ;
 class_arg: ID
-            {
-                #ifdef DEBUG
-                    cout << "Class: "      << className 
-                         << ": child to: " << $1 << endl;
-                #endif
-            }
-          | class_arg COMMA
-          | class_arg ID
+         | class_arg COMMA
            {
-                #ifdef DEBUG
-                    cout << "Class: "      << className 
-                         << ": child to: " << $2 << endl;
-                #endif
+               $$ += $2;
+           }
+         | class_arg ID
+           {
+               $$ += $2;
            }
 ;
 /* end of CLASS */
 
 /* FUNCTION */
 func_def: DEF funcname parameters COLON suite
-    {
-        #ifdef DEBUG
-            cout << "Function: " << funcName
-                 << "(" << funcParams << ")" << endl;
-        #endif
-        funcParams = "";
-    }
+          {
+              #ifdef DEBUG
+                  cout << "Function: " << funcName
+                       << "(" << funcParams << ")" << endl;
+              #endif
+              funcParams = "";
+          }
 ;
 funcname: ID
           {
@@ -86,23 +81,24 @@ funcname: ID
 parameters: LBRACE func_args_list RBRACE
 ;
 func_args_list: /* empty */
-                {
-                    funcParams = "";
-                }
               | func_arg
                 {
                     funcParams = $1;
                 }
 ;
 func_arg: ID
-        | sublist
+        | func_arg OTHER
+          {
+              $$ += $2;
+          }
         | func_arg COMMA
+          {
+              $$ += $2;
+          }
         | func_arg ID
-        | func_arg EQUAL OTHER
-        | func_arg sublist
-;
-sublist: LBRACE func_arg RBRACE
-;
+          {
+              $$ += $2;
+          }
 /* end of FUNCTION */
 
 suite:
@@ -114,7 +110,6 @@ other_token: DEFINED
            | ID
            | OTHER
            | COMMA
-           | EQUAL
            | LBRACE
            | RBRACE
 ;

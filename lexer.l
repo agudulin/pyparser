@@ -3,6 +3,7 @@
     #include <iostream>
 
     using namespace std;
+    //#define DEBUG
     #define YYSTYPE string
 
     #include "pyparser.tab.h"
@@ -31,16 +32,22 @@ quote2          "\""[^"\\]*"\""
                         projectIndent = yytext[0];
                         isStartIndentSet = true;
                     }
-                    cout << yytext;
+                    #ifdef DEBUG
+                        cout << yytext;
+                    #endif
                     int newIndent = countIndent(yytext);
                     if (newIndent > currentIndent) {
+                        #ifdef DEBUG
                         cout << "INDENT ->" 
                              << newIndent-currentIndent << endl;
+                        #endif
                         currentIndent = newIndent;
                     } 
                     else if (newIndent < currentIndent) {
+                        #ifdef DEBUG
                         cout << "DEDENT <- " 
                              << currentIndent-newIndent << endl;
+                        #endif
                         currentIndent = newIndent;
                    }
                 }
@@ -54,7 +61,6 @@ def             {
                 }
 ":"             yylval = yytext; return COLON;
 "."             yylval = yytext; return DOT;
-"="             yylval = yytext; return EQUAL;
 ","             yylval = yytext; return COMMA;
 "("             yylval = yytext; return LBRACE;
 ")"             yylval = yytext; return RBRACE;
@@ -71,6 +77,8 @@ def             {
 int countIndent(string str)
 {
     if(projectIndent != str[0])
-        cout << "WTF :( TABS and SPACES are in one file" << endl;
+        #ifdef DEBUG
+            cout << "WTF :( TABS and SPACES are in one file" << endl;
+        #endif
     return str.size();
 }

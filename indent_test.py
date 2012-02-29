@@ -2,14 +2,14 @@ def main():
 	print "main"
 	print "another"
 
-def test(abc=6,x, (a, b=7)):
+def test(a=5, *args, **args2):
 	print "test"
 
 def test2(a, b, c, d, e, f, g):
 	print "test2"
 
-class Foo():
-	def __init__(self):
+class Foo(a, b, c):
+	def __init__(self, test=7):
 		pass
 	def bar():
 		pass
