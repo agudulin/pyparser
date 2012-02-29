@@ -1,0 +1,7 @@
+id:              [_a-zA-Z][_a-zA-Z0-9]*
+classname:       id
+class_def:       'class' classname inheritance ':' suite
+inheritance:     [] | ['(' expression_list ')']
+expression_list: [] | expression
+expression:      id | [expression ','] | [expression id]
+suite:           ;
