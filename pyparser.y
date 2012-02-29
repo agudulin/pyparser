@@ -1,3 +1,8 @@
+/*
+TODO: - не обрабатывать параметры - хранить полную строку
+      - по поводу полиморфизма узнать
+*/
+
 %{
     #include <string>
     #include <iostream>
@@ -6,8 +11,9 @@
     #define DEBUG
     #define YYSTYPE string
 
-    string className = "";
-    string funcName  = "";
+    string className  = "";
+    string funcName   = "";
+    string funcParams = "";
     
     int yylex(void);
     void yyerror(const char *str) {
@@ -16,7 +22,7 @@
     int main();
 %}
 
-%token CLASS DEFINED COLON DOT LBRACE RBRACE ID OTHER DEF COMMA
+%token CLASS DEFINED COLON DOT LBRACE RBRACE ID OTHER DEF COMMA EQUAL
 
 %%
 input: /* empty */
@@ -29,7 +35,7 @@ input: /* empty */
 class_def: CLASS classname inheritance COLON suite
     {
         #ifdef DEBUG
-        //    cout << "Class: " << className << endl;
+            cout << "Class: " << className << endl;
         #endif
     }
 ;
@@ -66,8 +72,10 @@ class_arg: ID
 func_def: DEF funcname parameters COLON suite
     {
         #ifdef DEBUG
-            cout << "Function: " << funcName << endl;
+            cout << "Function: " << funcName
+                 << "(" << funcParams << ")" << endl;
         #endif
+        funcParams = "";
     }
 ;
 funcname: ID
@@ -78,17 +86,25 @@ funcname: ID
 parameters: LBRACE func_args_list RBRACE
 ;
 func_args_list: /* empty */
+                {
+                    funcParams = "";
+                }
               | func_arg
+                {
+                    funcParams = $1;
+                }
 ;
 func_arg: ID
+        | sublist
         | func_arg COMMA
         | func_arg ID
-        | func_arg OTHER
+        | func_arg EQUAL OTHER
         | func_arg sublist
 ;
 sublist: LBRACE func_arg RBRACE
 ;
 /* end of FUNCTION */
+
 suite:
 ;
 
@@ -98,6 +114,7 @@ other_token: DEFINED
            | ID
            | OTHER
            | COMMA
+           | EQUAL
            | LBRACE
            | RBRACE
 ;

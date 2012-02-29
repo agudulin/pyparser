@@ -54,6 +54,7 @@ def             {
                 }
 ":"             yylval = yytext; return COLON;
 "."             yylval = yytext; return DOT;
+"="             yylval = yytext; return EQUAL;
 ","             yylval = yytext; return COMMA;
 "("             yylval = yytext; return LBRACE;
 ")"             yylval = yytext; return RBRACE;
