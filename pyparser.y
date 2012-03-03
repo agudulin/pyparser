@@ -64,6 +64,10 @@ class_arg: ID
            {
                $$ += $2;
            }
+         | class_arg DOT
+           {
+               $$ += $2;
+           }
 ;
 /* end of CLASS */
 
