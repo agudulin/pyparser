@@ -3,7 +3,7 @@
     #include <iostream>
 
     using namespace std;
-    #define DEBUG
+    //#define DEBUG
     #define YYSTYPE string
 
     #include "pyparser.tab.h"
@@ -15,7 +15,7 @@
 %}
 
 identifier      [_a-zA-Z][_a-zA-Z0-9]*
-defined         "and"|"elif"|"global"|"or"|"assert"|"else"|"if"|"except"|"pass"|"break"|"import"|"print"|"exec"|"in"|"raise"|"continue"|"finally"|"is"|"return"|"for"|"lambda"|"try"|"del"|"from"|"not"|"while"
+defined         "and"|"elif"|"global"|"or"|"assert"|"else"|"if"|"except"|"pass"|"break"|"print"|"exec"|"in"|"raise"|"continue"|"finally"|"is"|"return"|"for"|"lambda"|"try"|"del"|"not"|"while"
 comment         "#".*
 quote1          "\'"[^'\\]*"\'"
 quote2          "\""[^"\\]*"\""
@@ -23,8 +23,12 @@ quote2          "\""[^"\\]*"\""
 %%
 \n\r|\r\n|\n|\r ; /* skip empty line */
 {comment}       ; /* skip comment */
+"from"|"import" ;
 {defined}       {
-                    yylval = yytext; 
+                    yylval = yytext;
+                    #ifdef DEBUG 
+                        cout << yytext << endl;
+                    #endif
                     return DEFINED;
                 }
 ^[ \t]+         {
@@ -66,7 +70,13 @@ def             {
 ")"             yylval = yytext; return RBRACE;
 "*"             yylval = yytext; return STAR;
 
-{identifier}    yylval = yytext; return ID;
+{identifier}    {
+                    yylval = yytext; 
+                    #ifdef DEBUG 
+                        cout << yytext << endl; 
+                    #endif
+                    return ID;
+                }
 
 {quote1}        ; /* skip messages in single quotes */
 {quote2}        ; /* skip messages in double quotes */
