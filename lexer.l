@@ -64,6 +64,7 @@ def             {
 ","             yylval = yytext; return COMMA;
 "("             yylval = yytext; return LBRACE;
 ")"             yylval = yytext; return RBRACE;
+"*"             yylval = yytext; return STAR;
 
 {identifier}    yylval = yytext; return ID;
 

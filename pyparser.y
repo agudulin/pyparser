@@ -13,7 +13,7 @@
     int main();
 %}
 
-%token CLASS DEFINED COLON DOT LBRACE RBRACE ID OTHER DEF COMMA
+%token CLASS DEFINED COLON DOT LBRACE RBRACE ID OTHER DEF COMMA STAR
 
 %%
 input: /* empty */
@@ -101,6 +101,7 @@ func_args_list: /* empty */
                 }
 ;
 func_arg: ID
+        | star_arg
         | func_arg OTHER
           {
               $$ += $2;
@@ -113,6 +114,20 @@ func_arg: ID
           {
               $$ += $2;
           }
+        | func_arg star_arg
+          {
+              $$ += $2;
+          }
+;
+star_arg: STAR ID
+          {
+              $$ = $1 + $2;
+          }
+        | STAR STAR ID
+          {
+              $$ = $1 + $2 + $3;
+          }
+;
 /* end of FUNCTION */
 
 suite:
@@ -126,6 +141,7 @@ other_token: DEFINED
            | COMMA
            | LBRACE
            | RBRACE
+           | STAR
 ;
 %%
 
