@@ -19,6 +19,7 @@
 input: /* empty */
      | input class_def
      | input func_def
+     //| input func_call
      | input other_token
 ;
 
@@ -72,11 +73,11 @@ class_arg: ID
 /* end of CLASS */
 
 /* FUNCTION */
-func_def: DEF funcname parameters COLON suite
+func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
           {
               #ifdef DEBUG
                   cout << "Function: " << $2
-                       << "("          << $3 
+                       << "("          << $4 
                        << ")"          << endl;
               #endif
           }
@@ -85,11 +86,6 @@ funcname: ID
           {
               $$ = $1;
           }
-;
-parameters: LBRACE func_args_list RBRACE
-            {
-                $$ = $2;
-            }
 ;
 func_args_list: /* empty */
                 {
@@ -133,15 +129,64 @@ star_arg: STAR ID
 suite:
 ;
 
+/* FUNCTION CALL 
+func_call: ID LBRACE call_params RBRACE
+           {
+               cout << "Function \"" << $1  << "\" is called with params ("
+                    << $3            << ")" << endl;
+           }
+;
+call_params: /* empty *
+             {
+                 $$ = "";
+             }
+           | call_param
+             {
+                 $$ = $1;
+             }
+;
+call_param: other_token
+          | func_call
+          | call_param func_call
+            {
+                $$ += $2;
+            }
+          | call_param OTHER
+            {
+                $$ += $2;
+            }
+          | call_param COMMA
+            {
+                $$ += $2;
+            }
+          | call_param ID
+            {
+                $$ += $2;
+            }
+          | call_param DOT
+            {
+                $$ += $2;
+            }
+          | call_param DEFINED
+            {
+                $$ += $2;
+            }
+          | call_param star_arg
+            {
+                $$ += $2;
+            }
+;
+/* end of FUNCTION CALL */
+
 other_token: DEFINED
            | COLON
            | DOT
            | ID
            | OTHER
            | COMMA
+           | STAR
            | LBRACE
            | RBRACE
-           | STAR
 ;
 %%
 
