@@ -3,7 +3,7 @@
     #include <iostream>
 
     using namespace std;
-    //#define DEBUG
+    #define DEBUG
     #define YYSTYPE string
 
     #include "pyparser.tab.h"
@@ -19,8 +19,8 @@ defined         "and"|"elif"|"global"|"or"|"assert"|"else"|"if"|"except"|"pass"|
 comment         "#".*
 quote1          "\'"[^'\\]*"\'"
 quote2          "\""[^"\\]*"\""
-quote3_2        "\"\"\""(?:[^"]*|\\["])*"\"\"\""
-quote3_1        "\'\'\'"(?:[^']*|\\['])*"\'\'\'"
+quote3_2        "\"\"\""(?:[^"]*|\\["]|["]{1,2}[^"])*"\"\"\""
+quote3_1        "\'\'\'"(?:[^']*|\\[']|[']{1,2}[^'])*"\'\'\'"
 
 %%
 \n\r|\r\n|\n|\r ; /* skip empty line */
