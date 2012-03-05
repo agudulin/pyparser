@@ -187,6 +187,10 @@ call_params: /* empty */
              {
                  $$ += $2;
              }
+           | call_params star_arg
+             {
+                 $$ += $2;
+             }
  ;
 /* FUNCTION CALL 
 func_call: ID LBRACE call_params RBRACE
