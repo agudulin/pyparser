@@ -154,14 +154,14 @@ dotted_name: ID
              }
 ;
 call_params: /* empty */
-            {
-                $$ = "";
-            }
+             {
+                 $$ = "";
+             }
            | OTHER
            | DEFINED
            | MESSAGE
            | dotted_name
-           | star_arg
+           | STAR
            | func_call
            | call_params DEFINED
              {
@@ -191,9 +191,13 @@ call_params: /* empty */
              {
                  $$ += $2;
              }
-           | call_params star_arg
+           | call_params STAR
              {
                  $$ += $2;
+             }
+           | call_params LBRACE call_params RBRACE
+             {
+                 $$ += $2 + $3 + $4;
              }
  ;
 /* end of FUNCTION CALL */
