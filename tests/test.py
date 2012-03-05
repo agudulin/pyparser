@@ -953,7 +953,7 @@ class User(object):
         return self._time_zone
 
     def SetTimeZone(self, time_zone):
-        '''Sets the user's time zone string.
+        '''Sets the user\'s time zone string.
 
         Args:
             time_zone:

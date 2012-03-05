@@ -156,6 +156,9 @@ call_params: /* empty */
            | OTHER
            | DEFINED
            | MESSAGE
+           | dotted_name
+           | star_arg
+           | func_call
            | call_params DEFINED
              {
                  $$ += $2;
@@ -164,11 +167,11 @@ call_params: /* empty */
              {
                  $$ += $2;
              }
-           | call_params OTHER
+           | call_params dotted_name
              {
                  $$ += $2;
              }
-           | call_params func_arg
+           | call_params OTHER
              {
                  $$ += $2;
              }
@@ -177,6 +180,10 @@ call_params: /* empty */
                  $$ += $2;
              }
            | call_params COMMA
+             {
+                 $$ += $2;
+             }
+           | call_params COLON
              {
                  $$ += $2;
              }
