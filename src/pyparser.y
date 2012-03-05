@@ -119,6 +119,10 @@ func_arg: dotted_name
           {
               $$ += $2;
           }
+        | func_arg MESSAGE
+          {
+              $$ += $2;
+          }
 ;
 star_arg: STAR ID
           {

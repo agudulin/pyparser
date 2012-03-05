@@ -3,7 +3,7 @@
     #include <iostream>
 
     using namespace std;
-    //#define DEBUG
+    #define DEBUG
     #define YYSTYPE string
 
     #include "pyparser.tab.h"
@@ -84,13 +84,14 @@ def             {
 {quote1}        {
                     yylval = yytext;
                     #ifdef DEBUG
-                        cout << yytext << endl;
+                        cout << "MSG: " << yytext << endl;
                     #endif
                     return MESSAGE;
                 }
 {quote2}        {
+                    yylval = yytext;
                     #ifdef DEBUG
-                        cout << yytext << endl;
+                        cout << "MSG: " << yytext << endl;
                     #endif
                     return MESSAGE;
                 }
