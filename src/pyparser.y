@@ -192,53 +192,6 @@ call_params: /* empty */
                  $$ += $2;
              }
  ;
-/* FUNCTION CALL 
-func_call: ID LBRACE call_params RBRACE
-           {
-               cout << "Function \"" << $1  << "\" is called with params ("
-                    << $3            << ")" << endl;
-           }
-;
-call_params: /* empty *
-             {
-                 $$ = "";
-             }
-           | call_param
-             {
-                 $$ = $1;
-             }
-;
-call_param: other_token
-          | func_call
-          | call_param func_call
-            {
-                $$ += $2;
-            }
-          | call_param OTHER
-            {
-                $$ += $2;
-            }
-          | call_param COMMA
-            {
-                $$ += $2;
-            }
-          | call_param ID
-            {
-                $$ += $2;
-            }
-          | call_param DOT
-            {
-                $$ += $2;
-            }
-          | call_param DEFINED
-            {
-                $$ += $2;
-            }
-          | call_param star_arg
-            {
-                $$ += $2;
-            }
-;
 /* end of FUNCTION CALL */
 
 other_token: dotted_name
