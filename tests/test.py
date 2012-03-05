@@ -219,7 +219,7 @@ class Status(object):
         Returns: \'test\'
             The time this status message was posted, in seconds since the epoch.
         '''
-        return calendar(rfc822(self.created_at))
+        return calendar(rfc822(self.created_at()))
 
     created_at_in_seconds = property(GetCreatedAtInSeconds,
                                                                      doc="The time this status message was "
@@ -366,7 +366,7 @@ class Status(object):
             A human readable string representing the posting time
         '''
         fudge = 1.25
-        delta  = long(self.now) - long(self.created_at_in_seconds)
+        delta = long(self.now) - long(self.created_at_in_seconds)
 
         if delta < (1 * fudge):
             return 'about a second ago'
@@ -588,7 +588,7 @@ class Status(object):
         if self.retweet_count:
             data['retweet_count'] = self.retweet_count
         if self.urls:
-            data['urls'] = dict([(url.url, url.expanded_url) for url in self.urls])
+            data['urls'] = dict([x for url in self.urls])
         if self.user_mentions:
             data['user_mentions'] = [um.AsDict() for um in self.user_mentions]                                                                                                                                       
         return data

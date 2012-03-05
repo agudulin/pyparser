@@ -23,7 +23,7 @@ class Foo(Lady, Gaga):
 			print "GAGA"
 		def bar_func():
 			pass
-			foo()
+			self.test.foo()
 	def __init__(self, test=7):
 		pass
 	def foo():

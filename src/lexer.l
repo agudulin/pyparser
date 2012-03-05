@@ -19,6 +19,8 @@ defined         "and"|"elif"|"global"|"or"|"assert"|"else"|"if"|"except"|"pass"|
 comment         "#".*
 quote1          "\'"[^'\\]*"\'"
 quote2          "\""[^"\\]*"\""
+quote3_2        "\"\"\""(?:[^"]*|\\["])*"\"\"\""
+quote3_1        "\'\'\'"(?:[^']*|\\['])*"\'\'\'"
 
 %%
 \n\r|\r\n|\n|\r ; /* skip empty line */
@@ -77,12 +79,30 @@ def             {
                     #endif
                     return ID;
                 }
-
-{quote1}        ; /* skip messages in single quotes */
-{quote2}        ; /* skip messages in double quotes */
+{quote3_1}      ; /* skip messages in triple single quotes */
+{quote3_2}      ; /* skip messages in triple double quotes */
+{quote1}        {
+                    yylval = yytext;
+                    #ifdef DEBUG
+                        cout << yytext << endl;
+                    #endif
+                    return MESSAGE;
+                }
+{quote2}        {
+                    #ifdef DEBUG
+                        cout << yytext << endl;
+                    #endif
+                    return MESSAGE;
+                }
 
 [ \t]+          ; /* skip whitespaces */
-.               yylval = yytext; return OTHER;
+.               {
+                    yylval = yytext;
+                    #ifdef DEBUG 
+                        cout << yytext << endl; 
+                    #endif
+                    return OTHER;
+                }
 %%
 
 int countIndent(string str)

@@ -13,14 +13,19 @@
     int main();
 %}
 
-%token CLASS DEFINED COLON DOT LBRACE RBRACE ID OTHER DEF COMMA STAR
+%token CLASS DEFINED COLON DOT LBRACE RBRACE ID OTHER DEF COMMA STAR MESSAGE
+%start input
+
+%left RBRACE
+%left LBRACE
 
 %%
 input: /* empty */
      | input class_def
      | input func_def
-     //| input func_call
+     | input func_call
      | input other_token
+     | input other_tokens
 ;
 
 /* CLASS */
@@ -96,7 +101,7 @@ func_args_list: /* empty */
                     $$ = $1;
                 }
 ;
-func_arg: ID
+func_arg: dotted_name
         | star_arg
         | func_arg OTHER
           {
@@ -106,7 +111,7 @@ func_arg: ID
           {
               $$ += $2;
           }
-        | func_arg ID
+        | func_arg dotted_name
           {
               $$ += $2;
           }
@@ -129,6 +134,53 @@ star_arg: STAR ID
 suite:
 ;
 
+/* FUNCTION CALL */
+func_call: dotted_name LBRACE call_params RBRACE
+           {
+              #ifdef DEBUG
+                  cout << "Function \"" << $1  << "\" is called with params ("
+                       << $3            << ")" << endl;
+              #endif
+           }
+;
+dotted_name: ID
+           | dotted_name DOT ID
+             {
+                 $$ += $2 + $3;
+             }
+;
+call_params: /* empty */
+            {
+                $$ = "";
+            }
+           | OTHER
+           | DEFINED
+           | MESSAGE
+           | call_params DEFINED
+             {
+                 $$ += $2;
+             }
+           | call_params MESSAGE
+             {
+                 $$ += $2;
+             }
+           | call_params OTHER
+             {
+                 $$ += $2;
+             }
+           | call_params func_arg
+             {
+                 $$ += $2;
+             }
+           | call_params func_call
+             {
+                 $$ += $2;
+             }
+           | call_params COMMA
+             {
+                 $$ += $2;
+             }
+ ;
 /* FUNCTION CALL 
 func_call: ID LBRACE call_params RBRACE
            {
@@ -178,15 +230,17 @@ call_param: other_token
 ;
 /* end of FUNCTION CALL */
 
-other_token: DEFINED
+other_token: dotted_name
+           | DEFINED
            | COLON
            | DOT
-           | ID
            | OTHER
            | COMMA
            | STAR
-           | LBRACE
-           | RBRACE
+           | MESSAGE
+;
+other_tokens: LBRACE
+            | RBRACE
 ;
 %%
 
