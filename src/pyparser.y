@@ -139,26 +139,22 @@ suite:
 
 /* FUNCTION CALL */
 calls_chain: func_call
-            {
-                $$ = $1;
-                #ifdef DEBUG
-                    cout << "> Call: function " << $$ << endl;
-                #endif
-            }
-          | func_call DOT func_call
-            {
-              $$ = $1 + $2 + $3;
-              #ifdef DEBUG
-                  cout << "> Call: function " << $$ << endl;
-              #endif
-            }
-
+             {
+                 #ifdef DEBUG
+                     cout << "> Call: function " << $$ << endl;
+                 #endif
+             }
+           | calls_chain DOT func_call
+             {
+                 $$ += $2 + $3;
+                 #ifdef DEBUG
+                     cout << "> Call: function " << $$ << endl;
+                 #endif
+             }
+;
 func_call: dotted_name LBRACE call_params RBRACE
            {
               $$ = $1 + $2 + $3 + $4;
-              #ifdef DEBUG
-                  cout << "> Call: function " << $$ << endl;
-              #endif
            }
 ;
 dotted_name: ID
@@ -176,7 +172,7 @@ call_params: /* empty */
            | MESSAGE
            | dotted_name
            | STAR
-           | func_call
+           | calls_chain
            | call_params DEFINED
              {
                  $$ += $2;
@@ -193,7 +189,7 @@ call_params: /* empty */
              {
                  $$ += $2;
              }
-           | call_params func_call
+           | call_params calls_chain
              {
                  $$ += $2;
              }
@@ -213,7 +209,7 @@ call_params: /* empty */
              {
                  $$ += $2 + $3 + $4;
              }
- ;
+;
 /* end of FUNCTION CALL */
 
 other_token: dotted_name

@@ -1,1 +1,1 @@
-s.text.lower().find(term.lower())
+s.text.lower().find(term.lower()).join()
