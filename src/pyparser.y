@@ -152,9 +152,9 @@ calls_chain: func_call
                  #endif
              }
 ;
-func_call: dotted_name LBRACE call_params RBRACE
+func_call: dotted_name func_call_params
            {
-              $$ = $1 + $2 + $3 + $4;
+              $$ = $1 + $2;
            }
 ;
 dotted_name: ID
@@ -163,16 +163,22 @@ dotted_name: ID
                  $$ += $2 + $3;
              }
 ;
-call_params: /* empty */
-             {
-                 $$ = "";
-             }
-           | OTHER
+func_call_params: LBRACE RBRACE
+                  {
+                      $$ = $1 + $2;
+                  }
+                | LBRACE call_params RBRACE
+                  {
+                      $$ = $1 + $2 + $3;
+                  }
+;
+call_params: OTHER
            | DEFINED
            | MESSAGE
            | dotted_name
            | STAR
            | calls_chain
+           | func_call_params
            | call_params DEFINED
              {
                  $$ += $2;
@@ -205,9 +211,9 @@ call_params: /* empty */
              {
                  $$ += $2;
              }
-           | call_params LBRACE call_params RBRACE
+           | call_params func_call_params
              {
-                 $$ += $2 + $3 + $4;
+                 $$ += $2;
              }
 ;
 /* end of FUNCTION CALL */

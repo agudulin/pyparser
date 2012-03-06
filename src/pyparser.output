@@ -1,9 +1,7 @@
 State 17 conflicts: 1 shift/reduce
 State 19 conflicts: 2 shift/reduce
-State 27 conflicts: 5 shift/reduce
-State 39 conflicts: 1 shift/reduce
-State 52 conflicts: 5 shift/reduce
-State 59 conflicts: 1 shift/reduce
+State 41 conflicts: 1 shift/reduce
+State 61 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -54,38 +52,41 @@ Grammar
    30 calls_chain: func_call
    31            | calls_chain DOT func_call
 
-   32 func_call: dotted_name LBRACE call_params RBRACE
+   32 func_call: dotted_name func_call_params
 
    33 dotted_name: ID
    34            | dotted_name DOT ID
 
-   35 call_params: /* empty */
-   36            | OTHER
-   37            | DEFINED
-   38            | MESSAGE
-   39            | dotted_name
-   40            | STAR
-   41            | calls_chain
-   42            | call_params DEFINED
-   43            | call_params MESSAGE
-   44            | call_params dotted_name
-   45            | call_params OTHER
-   46            | call_params calls_chain
-   47            | call_params COMMA
-   48            | call_params COLON
-   49            | call_params STAR
-   50            | call_params LBRACE call_params RBRACE
+   35 func_call_params: LBRACE RBRACE
+   36                 | LBRACE call_params RBRACE
 
-   51 other_token: dotted_name
-   52            | DEFINED
-   53            | COLON
-   54            | DOT
-   55            | OTHER
-   56            | COMMA
-   57            | STAR
-   58            | MESSAGE
-   59            | LBRACE
-   60            | RBRACE
+   37 call_params: OTHER
+   38            | DEFINED
+   39            | MESSAGE
+   40            | dotted_name
+   41            | STAR
+   42            | calls_chain
+   43            | func_call_params
+   44            | call_params DEFINED
+   45            | call_params MESSAGE
+   46            | call_params dotted_name
+   47            | call_params OTHER
+   48            | call_params calls_chain
+   49            | call_params COMMA
+   50            | call_params COLON
+   51            | call_params STAR
+   52            | call_params func_call_params
+
+   53 other_token: dotted_name
+   54            | DEFINED
+   55            | COLON
+   56            | DOT
+   57            | OTHER
+   58            | COMMA
+   59            | STAR
+   60            | MESSAGE
+   61            | LBRACE
+   62            | RBRACE
 
 
 Terminals, with rules where they appear
@@ -93,17 +94,17 @@ Terminals, with rules where they appear
 $end (0) 0
 error (256)
 CLASS (258) 6
-DEFINED (259) 37 42 52
-COLON (260) 6 16 48 53
-DOT (261) 15 31 34 54
-LBRACE (262) 9 16 32 50 59
-RBRACE (263) 9 16 32 50 60
+DEFINED (259) 38 44 54
+COLON (260) 6 16 50 55
+DOT (261) 15 31 34 56
+LBRACE (262) 9 16 35 36 61
+RBRACE (263) 9 16 35 36 62
 ID (264) 7 12 14 17 27 28 33 34
-OTHER (265) 22 36 45 55
+OTHER (265) 22 37 47 57
 DEF (266) 16
-COMMA (267) 13 23 47 56
-STAR (268) 27 28 40 49 57
-MESSAGE (269) 26 38 43 58
+COMMA (267) 13 23 49 58
+STAR (268) 27 28 41 51 59
+MESSAGE (269) 26 39 45 60
 
 
 Nonterminals, with rules where they appear
@@ -135,16 +136,18 @@ star_arg (26)
 suite (27)
     on left: 29, on right: 6 16
 calls_chain (28)
-    on left: 30 31, on right: 4 31 41 46
+    on left: 30 31, on right: 4 31 42 48
 func_call (29)
     on left: 32, on right: 30 31
 dotted_name (30)
-    on left: 33 34, on right: 20 24 32 34 39 44 51
-call_params (31)
-    on left: 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50,
-    on right: 32 42 43 44 45 46 47 48 49 50
-other_token (32)
-    on left: 51 52 53 54 55 56 57 58 59 60, on right: 5
+    on left: 33 34, on right: 20 24 32 34 40 46 53
+func_call_params (31)
+    on left: 35 36, on right: 32 43 52
+call_params (32)
+    on left: 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52,
+    on right: 36 44 45 46 47 48 49 50 51 52
+other_token (33)
+    on left: 53 54 55 56 57 58 59 60 61 62, on right: 5
 
 
 state 0
@@ -204,37 +207,37 @@ state 3
 
 state 4
 
-   52 other_token: DEFINED .
-
-    $default  reduce using rule 52 (other_token)
-
-
-state 5
-
-   53 other_token: COLON .
-
-    $default  reduce using rule 53 (other_token)
-
-
-state 6
-
-   54 other_token: DOT .
+   54 other_token: DEFINED .
 
     $default  reduce using rule 54 (other_token)
 
 
+state 5
+
+   55 other_token: COLON .
+
+    $default  reduce using rule 55 (other_token)
+
+
+state 6
+
+   56 other_token: DOT .
+
+    $default  reduce using rule 56 (other_token)
+
+
 state 7
 
-   59 other_token: LBRACE .
+   61 other_token: LBRACE .
 
-    $default  reduce using rule 59 (other_token)
+    $default  reduce using rule 61 (other_token)
 
 
 state 8
 
-   60 other_token: RBRACE .
+   62 other_token: RBRACE .
 
-    $default  reduce using rule 60 (other_token)
+    $default  reduce using rule 62 (other_token)
 
 
 state 9
@@ -246,9 +249,9 @@ state 9
 
 state 10
 
-   55 other_token: OTHER .
+   57 other_token: OTHER .
 
-    $default  reduce using rule 55 (other_token)
+    $default  reduce using rule 57 (other_token)
 
 
 state 11
@@ -262,23 +265,23 @@ state 11
 
 state 12
 
-   56 other_token: COMMA .
+   58 other_token: COMMA .
 
-    $default  reduce using rule 56 (other_token)
+    $default  reduce using rule 58 (other_token)
 
 
 state 13
 
-   57 other_token: STAR .
+   59 other_token: STAR .
 
-    $default  reduce using rule 57 (other_token)
+    $default  reduce using rule 59 (other_token)
 
 
 state 14
 
-   58 other_token: MESSAGE .
+   60 other_token: MESSAGE .
 
-    $default  reduce using rule 58 (other_token)
+    $default  reduce using rule 60 (other_token)
 
 
 state 15
@@ -315,16 +318,18 @@ state 18
 
 state 19
 
-   32 func_call: dotted_name . LBRACE call_params RBRACE
+   32 func_call: dotted_name . func_call_params
    34 dotted_name: dotted_name . DOT ID
-   51 other_token: dotted_name .
+   53 other_token: dotted_name .
 
     DOT     shift, and go to state 26
     LBRACE  shift, and go to state 27
 
-    DOT       [reduce using rule 51 (other_token)]
-    LBRACE    [reduce using rule 51 (other_token)]
-    $default  reduce using rule 51 (other_token)
+    DOT       [reduce using rule 53 (other_token)]
+    LBRACE    [reduce using rule 53 (other_token)]
+    $default  reduce using rule 53 (other_token)
+
+    func_call_params  go to state 28
 
 
 state 20
@@ -345,11 +350,11 @@ state 22
 
     6 class_def: CLASS classname . inheritance COLON suite
 
-    LBRACE  shift, and go to state 28
+    LBRACE  shift, and go to state 29
 
     $default  reduce using rule 8 (inheritance)
 
-    inheritance  go to state 29
+    inheritance  go to state 30
 
 
 state 23
@@ -363,7 +368,7 @@ state 24
 
    16 func_def: DEF funcname . LBRACE func_args_list RBRACE COLON suite
 
-    LBRACE  shift, and go to state 30
+    LBRACE  shift, and go to state 31
 
 
 state 25
@@ -372,230 +377,253 @@ state 25
 
     ID  shift, and go to state 9
 
-    func_call    go to state 31
-    dotted_name  go to state 32
+    func_call    go to state 32
+    dotted_name  go to state 33
 
 
 state 26
 
    34 dotted_name: dotted_name DOT . ID
 
-    ID  shift, and go to state 33
+    ID  shift, and go to state 34
 
 
 state 27
 
-   32 func_call: dotted_name LBRACE . call_params RBRACE
+   35 func_call_params: LBRACE . RBRACE
+   36                 | LBRACE . call_params RBRACE
 
-    DEFINED  shift, and go to state 34
+    DEFINED  shift, and go to state 35
+    LBRACE   shift, and go to state 27
+    RBRACE   shift, and go to state 36
     ID       shift, and go to state 9
-    OTHER    shift, and go to state 35
-    STAR     shift, and go to state 36
-    MESSAGE  shift, and go to state 37
+    OTHER    shift, and go to state 37
+    STAR     shift, and go to state 38
+    MESSAGE  shift, and go to state 39
 
-    DEFINED   [reduce using rule 35 (call_params)]
-    ID        [reduce using rule 35 (call_params)]
-    OTHER     [reduce using rule 35 (call_params)]
-    STAR      [reduce using rule 35 (call_params)]
-    MESSAGE   [reduce using rule 35 (call_params)]
-    $default  reduce using rule 35 (call_params)
-
-    calls_chain  go to state 38
-    func_call    go to state 18
-    dotted_name  go to state 39
-    call_params  go to state 40
+    calls_chain       go to state 40
+    func_call         go to state 18
+    dotted_name       go to state 41
+    func_call_params  go to state 42
+    call_params       go to state 43
 
 
 state 28
 
-    9 inheritance: LBRACE . class_args_list RBRACE
+   32 func_call: dotted_name func_call_params .
 
-    ID  shift, and go to state 41
-
-    $default  reduce using rule 10 (class_args_list)
-
-    class_args_list  go to state 42
-    class_arg        go to state 43
+    $default  reduce using rule 32 (func_call)
 
 
 state 29
 
-    6 class_def: CLASS classname inheritance . COLON suite
+    9 inheritance: LBRACE . class_args_list RBRACE
 
-    COLON  shift, and go to state 44
+    ID  shift, and go to state 44
+
+    $default  reduce using rule 10 (class_args_list)
+
+    class_args_list  go to state 45
+    class_arg        go to state 46
 
 
 state 30
 
-   16 func_def: DEF funcname LBRACE . func_args_list RBRACE COLON suite
+    6 class_def: CLASS classname inheritance . COLON suite
 
-    ID    shift, and go to state 9
-    STAR  shift, and go to state 45
-
-    $default  reduce using rule 18 (func_args_list)
-
-    func_args_list  go to state 46
-    func_arg        go to state 47
-    star_arg        go to state 48
-    dotted_name     go to state 49
+    COLON  shift, and go to state 47
 
 
 state 31
+
+   16 func_def: DEF funcname LBRACE . func_args_list RBRACE COLON suite
+
+    ID    shift, and go to state 9
+    STAR  shift, and go to state 48
+
+    $default  reduce using rule 18 (func_args_list)
+
+    func_args_list  go to state 49
+    func_arg        go to state 50
+    star_arg        go to state 51
+    dotted_name     go to state 52
+
+
+state 32
 
    31 calls_chain: calls_chain DOT func_call .
 
     $default  reduce using rule 31 (calls_chain)
 
 
-state 32
+state 33
 
-   32 func_call: dotted_name . LBRACE call_params RBRACE
+   32 func_call: dotted_name . func_call_params
    34 dotted_name: dotted_name . DOT ID
 
     DOT     shift, and go to state 26
     LBRACE  shift, and go to state 27
 
+    func_call_params  go to state 28
 
-state 33
+
+state 34
 
    34 dotted_name: dotted_name DOT ID .
 
     $default  reduce using rule 34 (dotted_name)
 
 
-state 34
-
-   37 call_params: DEFINED .
-
-    $default  reduce using rule 37 (call_params)
-
-
 state 35
 
-   36 call_params: OTHER .
-
-    $default  reduce using rule 36 (call_params)
-
-
-state 36
-
-   40 call_params: STAR .
-
-    $default  reduce using rule 40 (call_params)
-
-
-state 37
-
-   38 call_params: MESSAGE .
+   38 call_params: DEFINED .
 
     $default  reduce using rule 38 (call_params)
 
 
+state 36
+
+   35 func_call_params: LBRACE RBRACE .
+
+    $default  reduce using rule 35 (func_call_params)
+
+
+state 37
+
+   37 call_params: OTHER .
+
+    $default  reduce using rule 37 (call_params)
+
+
 state 38
 
-   31 calls_chain: calls_chain . DOT func_call
-   41 call_params: calls_chain .
-
-    DOT  shift, and go to state 25
+   41 call_params: STAR .
 
     $default  reduce using rule 41 (call_params)
 
 
 state 39
 
-   32 func_call: dotted_name . LBRACE call_params RBRACE
-   34 dotted_name: dotted_name . DOT ID
-   39 call_params: dotted_name .
+   39 call_params: MESSAGE .
 
-    DOT     shift, and go to state 26
-    LBRACE  shift, and go to state 27
-
-    LBRACE    [reduce using rule 39 (call_params)]
     $default  reduce using rule 39 (call_params)
 
 
 state 40
 
-   32 func_call: dotted_name LBRACE call_params . RBRACE
-   42 call_params: call_params . DEFINED
-   43            | call_params . MESSAGE
-   44            | call_params . dotted_name
-   45            | call_params . OTHER
-   46            | call_params . calls_chain
-   47            | call_params . COMMA
-   48            | call_params . COLON
-   49            | call_params . STAR
-   50            | call_params . LBRACE call_params RBRACE
+   31 calls_chain: calls_chain . DOT func_call
+   42 call_params: calls_chain .
 
-    DEFINED  shift, and go to state 50
-    COLON    shift, and go to state 51
-    LBRACE   shift, and go to state 52
-    RBRACE   shift, and go to state 53
-    ID       shift, and go to state 9
-    OTHER    shift, and go to state 54
-    COMMA    shift, and go to state 55
-    STAR     shift, and go to state 56
-    MESSAGE  shift, and go to state 57
+    DOT  shift, and go to state 25
 
-    calls_chain  go to state 58
-    func_call    go to state 18
-    dotted_name  go to state 59
+    $default  reduce using rule 42 (call_params)
 
 
 state 41
+
+   32 func_call: dotted_name . func_call_params
+   34 dotted_name: dotted_name . DOT ID
+   40 call_params: dotted_name .
+
+    DOT     shift, and go to state 26
+    LBRACE  shift, and go to state 27
+
+    LBRACE    [reduce using rule 40 (call_params)]
+    $default  reduce using rule 40 (call_params)
+
+    func_call_params  go to state 28
+
+
+state 42
+
+   43 call_params: func_call_params .
+
+    $default  reduce using rule 43 (call_params)
+
+
+state 43
+
+   36 func_call_params: LBRACE call_params . RBRACE
+   44 call_params: call_params . DEFINED
+   45            | call_params . MESSAGE
+   46            | call_params . dotted_name
+   47            | call_params . OTHER
+   48            | call_params . calls_chain
+   49            | call_params . COMMA
+   50            | call_params . COLON
+   51            | call_params . STAR
+   52            | call_params . func_call_params
+
+    DEFINED  shift, and go to state 53
+    COLON    shift, and go to state 54
+    LBRACE   shift, and go to state 27
+    RBRACE   shift, and go to state 55
+    ID       shift, and go to state 9
+    OTHER    shift, and go to state 56
+    COMMA    shift, and go to state 57
+    STAR     shift, and go to state 58
+    MESSAGE  shift, and go to state 59
+
+    calls_chain       go to state 60
+    func_call         go to state 18
+    dotted_name       go to state 61
+    func_call_params  go to state 62
+
+
+state 44
 
    12 class_arg: ID .
 
     $default  reduce using rule 12 (class_arg)
 
 
-state 42
+state 45
 
     9 inheritance: LBRACE class_args_list . RBRACE
 
-    RBRACE  shift, and go to state 60
+    RBRACE  shift, and go to state 63
 
 
-state 43
+state 46
 
    11 class_args_list: class_arg .
    13 class_arg: class_arg . COMMA
    14          | class_arg . ID
    15          | class_arg . DOT
 
-    DOT    shift, and go to state 61
-    ID     shift, and go to state 62
-    COMMA  shift, and go to state 63
+    DOT    shift, and go to state 64
+    ID     shift, and go to state 65
+    COMMA  shift, and go to state 66
 
     $default  reduce using rule 11 (class_args_list)
 
 
-state 44
+state 47
 
     6 class_def: CLASS classname inheritance COLON . suite
 
     $default  reduce using rule 29 (suite)
 
-    suite  go to state 64
+    suite  go to state 67
 
 
-state 45
+state 48
 
    27 star_arg: STAR . ID
    28         | STAR . STAR ID
 
-    ID    shift, and go to state 65
-    STAR  shift, and go to state 66
+    ID    shift, and go to state 68
+    STAR  shift, and go to state 69
 
 
-state 46
+state 49
 
    16 func_def: DEF funcname LBRACE func_args_list . RBRACE COLON suite
 
-    RBRACE  shift, and go to state 67
+    RBRACE  shift, and go to state 70
 
 
-state 47
+state 50
 
    19 func_args_list: func_arg .
    22 func_arg: func_arg . OTHER
@@ -605,25 +633,25 @@ state 47
    26         | func_arg . MESSAGE
 
     ID       shift, and go to state 9
-    OTHER    shift, and go to state 68
-    COMMA    shift, and go to state 69
-    STAR     shift, and go to state 45
-    MESSAGE  shift, and go to state 70
+    OTHER    shift, and go to state 71
+    COMMA    shift, and go to state 72
+    STAR     shift, and go to state 48
+    MESSAGE  shift, and go to state 73
 
     $default  reduce using rule 19 (func_args_list)
 
-    star_arg     go to state 71
-    dotted_name  go to state 72
+    star_arg     go to state 74
+    dotted_name  go to state 75
 
 
-state 48
+state 51
 
    21 func_arg: star_arg .
 
     $default  reduce using rule 21 (func_arg)
 
 
-state 49
+state 52
 
    20 func_arg: dotted_name .
    34 dotted_name: dotted_name . DOT ID
@@ -633,186 +661,172 @@ state 49
     $default  reduce using rule 20 (func_arg)
 
 
-state 50
-
-   42 call_params: call_params DEFINED .
-
-    $default  reduce using rule 42 (call_params)
-
-
-state 51
-
-   48 call_params: call_params COLON .
-
-    $default  reduce using rule 48 (call_params)
-
-
-state 52
-
-   50 call_params: call_params LBRACE . call_params RBRACE
-
-    DEFINED  shift, and go to state 34
-    ID       shift, and go to state 9
-    OTHER    shift, and go to state 35
-    STAR     shift, and go to state 36
-    MESSAGE  shift, and go to state 37
-
-    DEFINED   [reduce using rule 35 (call_params)]
-    ID        [reduce using rule 35 (call_params)]
-    OTHER     [reduce using rule 35 (call_params)]
-    STAR      [reduce using rule 35 (call_params)]
-    MESSAGE   [reduce using rule 35 (call_params)]
-    $default  reduce using rule 35 (call_params)
-
-    calls_chain  go to state 38
-    func_call    go to state 18
-    dotted_name  go to state 39
-    call_params  go to state 73
-
-
 state 53
 
-   32 func_call: dotted_name LBRACE call_params RBRACE .
+   44 call_params: call_params DEFINED .
 
-    $default  reduce using rule 32 (func_call)
+    $default  reduce using rule 44 (call_params)
 
 
 state 54
 
-   45 call_params: call_params OTHER .
+   50 call_params: call_params COLON .
 
-    $default  reduce using rule 45 (call_params)
+    $default  reduce using rule 50 (call_params)
 
 
 state 55
 
-   47 call_params: call_params COMMA .
+   36 func_call_params: LBRACE call_params RBRACE .
 
-    $default  reduce using rule 47 (call_params)
+    $default  reduce using rule 36 (func_call_params)
 
 
 state 56
 
-   49 call_params: call_params STAR .
+   47 call_params: call_params OTHER .
 
-    $default  reduce using rule 49 (call_params)
+    $default  reduce using rule 47 (call_params)
 
 
 state 57
 
-   43 call_params: call_params MESSAGE .
+   49 call_params: call_params COMMA .
 
-    $default  reduce using rule 43 (call_params)
+    $default  reduce using rule 49 (call_params)
 
 
 state 58
 
-   31 calls_chain: calls_chain . DOT func_call
-   46 call_params: call_params calls_chain .
+   51 call_params: call_params STAR .
 
-    DOT  shift, and go to state 25
-
-    $default  reduce using rule 46 (call_params)
+    $default  reduce using rule 51 (call_params)
 
 
 state 59
 
-   32 func_call: dotted_name . LBRACE call_params RBRACE
+   45 call_params: call_params MESSAGE .
+
+    $default  reduce using rule 45 (call_params)
+
+
+state 60
+
+   31 calls_chain: calls_chain . DOT func_call
+   48 call_params: call_params calls_chain .
+
+    DOT  shift, and go to state 25
+
+    $default  reduce using rule 48 (call_params)
+
+
+state 61
+
+   32 func_call: dotted_name . func_call_params
    34 dotted_name: dotted_name . DOT ID
-   44 call_params: call_params dotted_name .
+   46 call_params: call_params dotted_name .
 
     DOT     shift, and go to state 26
     LBRACE  shift, and go to state 27
 
-    LBRACE    [reduce using rule 44 (call_params)]
-    $default  reduce using rule 44 (call_params)
+    LBRACE    [reduce using rule 46 (call_params)]
+    $default  reduce using rule 46 (call_params)
+
+    func_call_params  go to state 28
 
 
-state 60
+state 62
+
+   52 call_params: call_params func_call_params .
+
+    $default  reduce using rule 52 (call_params)
+
+
+state 63
 
     9 inheritance: LBRACE class_args_list RBRACE .
 
     $default  reduce using rule 9 (inheritance)
 
 
-state 61
+state 64
 
    15 class_arg: class_arg DOT .
 
     $default  reduce using rule 15 (class_arg)
 
 
-state 62
+state 65
 
    14 class_arg: class_arg ID .
 
     $default  reduce using rule 14 (class_arg)
 
 
-state 63
+state 66
 
    13 class_arg: class_arg COMMA .
 
     $default  reduce using rule 13 (class_arg)
 
 
-state 64
+state 67
 
     6 class_def: CLASS classname inheritance COLON suite .
 
     $default  reduce using rule 6 (class_def)
 
 
-state 65
+state 68
 
    27 star_arg: STAR ID .
 
     $default  reduce using rule 27 (star_arg)
 
 
-state 66
+state 69
 
    28 star_arg: STAR STAR . ID
 
-    ID  shift, and go to state 74
+    ID  shift, and go to state 76
 
 
-state 67
+state 70
 
    16 func_def: DEF funcname LBRACE func_args_list RBRACE . COLON suite
 
-    COLON  shift, and go to state 75
+    COLON  shift, and go to state 77
 
 
-state 68
+state 71
 
    22 func_arg: func_arg OTHER .
 
     $default  reduce using rule 22 (func_arg)
 
 
-state 69
+state 72
 
    23 func_arg: func_arg COMMA .
 
     $default  reduce using rule 23 (func_arg)
 
 
-state 70
+state 73
 
    26 func_arg: func_arg MESSAGE .
 
     $default  reduce using rule 26 (func_arg)
 
 
-state 71
+state 74
 
    25 func_arg: func_arg star_arg .
 
     $default  reduce using rule 25 (func_arg)
 
 
-state 72
+state 75
 
    24 func_arg: func_arg dotted_name .
    34 dotted_name: dotted_name . DOT ID
@@ -822,58 +836,23 @@ state 72
     $default  reduce using rule 24 (func_arg)
 
 
-state 73
-
-   42 call_params: call_params . DEFINED
-   43            | call_params . MESSAGE
-   44            | call_params . dotted_name
-   45            | call_params . OTHER
-   46            | call_params . calls_chain
-   47            | call_params . COMMA
-   48            | call_params . COLON
-   49            | call_params . STAR
-   50            | call_params . LBRACE call_params RBRACE
-   50            | call_params LBRACE call_params . RBRACE
-
-    DEFINED  shift, and go to state 50
-    COLON    shift, and go to state 51
-    LBRACE   shift, and go to state 52
-    RBRACE   shift, and go to state 76
-    ID       shift, and go to state 9
-    OTHER    shift, and go to state 54
-    COMMA    shift, and go to state 55
-    STAR     shift, and go to state 56
-    MESSAGE  shift, and go to state 57
-
-    calls_chain  go to state 58
-    func_call    go to state 18
-    dotted_name  go to state 59
-
-
-state 74
+state 76
 
    28 star_arg: STAR STAR ID .
 
     $default  reduce using rule 28 (star_arg)
 
 
-state 75
+state 77
 
    16 func_def: DEF funcname LBRACE func_args_list RBRACE COLON . suite
 
     $default  reduce using rule 29 (suite)
 
-    suite  go to state 77
+    suite  go to state 78
 
 
-state 76
-
-   50 call_params: call_params LBRACE call_params RBRACE .
-
-    $default  reduce using rule 50 (call_params)
-
-
-state 77
+state 78
 
    16 func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite .
 
