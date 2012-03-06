@@ -25,7 +25,6 @@ input: /* empty */
      | input func_def
      | input func_call
      | input other_token
-     | input other_tokens
 ;
 
 /* CLASS */
@@ -210,9 +209,8 @@ other_token: dotted_name
            | COMMA
            | STAR
            | MESSAGE
-;
-other_tokens: LBRACE
-            | RBRACE
+           | LBRACE
+           | RBRACE
 ;
 %%
 
