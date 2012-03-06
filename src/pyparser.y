@@ -8,7 +8,9 @@
     
     int yylex(void);
     void yyerror(const char *str) {
-        cout << str << endl;
+        #ifdef DEBUG
+            //cout << str << endl;
+        #endif
     }
     int main();
 %}
@@ -24,7 +26,7 @@ input: /* empty */
      | input class_def
      | input func_def
      | input calls_chain
-     | input other_token
+     | input error
 ;
 
 /* CLASS */
@@ -217,7 +219,7 @@ call_params: OTHER
              }
 ;
 /* end of FUNCTION CALL */
-
+/*
 other_token: dotted_name
            | DEFINED
            | COLON
@@ -228,7 +230,7 @@ other_token: dotted_name
            | MESSAGE
            | LBRACE
            | RBRACE
-;
+;*/
 %%
 
 int main()
