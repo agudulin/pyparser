@@ -8,7 +8,7 @@
     
     int yylex(void);
     void yyerror(const char *str) {
-        printf("%s\n", str);
+        cout << str << endl;
     }
     int main();
 %}
@@ -23,7 +23,7 @@
 input: /* empty */
      | input class_def
      | input func_def
-     | input func_call
+     | input calls_chain
      | input other_token
 ;
 
@@ -138,12 +138,26 @@ suite:
 ;
 
 /* FUNCTION CALL */
+calls_chain: func_call
+            {
+                $$ = $1;
+                #ifdef DEBUG
+                    cout << "> Call: function " << $$ << endl;
+                #endif
+            }
+          | func_call DOT func_call
+            {
+              $$ = $1 + $2 + $3;
+              #ifdef DEBUG
+                  cout << "> Call: function " << $$ << endl;
+              #endif
+            }
+
 func_call: dotted_name LBRACE call_params RBRACE
            {
+              $$ = $1 + $2 + $3 + $4;
               #ifdef DEBUG
-                  cout << "> Call: function " << $1
-                       << "("                 << $3
-                       << ")"                 << endl;
+                  cout << "> Call: function " << $$ << endl;
               #endif
            }
 ;

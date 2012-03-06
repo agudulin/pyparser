@@ -25,7 +25,6 @@ quote3_1        "\'\'\'"(?:[^']*|\\[']|[']{1,2}[^'])*"\'\'\'"
 %%
 \n\r|\r\n|\n|\r ; /* skip empty line */
 {comment}       ; /* skip comment */
-"from"|"import" ;
 {defined}       {
                     yylval = yytext;
                     #ifdef DEBUG 
