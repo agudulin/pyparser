@@ -31,9 +31,9 @@ input: /* empty */
 class_def: CLASS classname inheritance COLON suite
     {
         #ifdef DEBUG
-            cout << "Class: "      << $2
-                 << ": child to: " << $3 
-                 << endl;
+            cout << ">>> ClassDef: class " << $2
+                 << "("                    << $3
+                 << ")"                    << endl;
         #endif
     }
 ;
@@ -80,9 +80,9 @@ class_arg: ID
 func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
           {
               #ifdef DEBUG
-                  cout << "Function: " << $2
-                       << "("          << $4 
-                       << ")"          << endl;
+                  cout << ">> FuncDef: function " << $2
+                       << "("                     << $4 
+                       << ")"                     << endl;
               #endif
           }
 ;
@@ -141,8 +141,9 @@ suite:
 func_call: dotted_name LBRACE call_params RBRACE
            {
               #ifdef DEBUG
-                  cout << "Function \"" << $1  << "\" is called with params ("
-                       << $3            << ")" << endl;
+                  cout << "> Call: function " << $1
+                       << "("                 << $3
+                       << ")"                 << endl;
               #endif
            }
 ;
