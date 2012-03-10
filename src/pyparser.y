@@ -15,12 +15,11 @@
     int main();
 %}
 
-%token CLASS DEFINED COLON DOT LBRACE RBRACE ID OTHER DEF COMMA STAR MESSAGE
+%token CLASS DEFINED COLON DOT LBRACE RBRACE ID OTHER DEF COMMA STAR MESSAGE INDENT
 %start input
 
 %left RBRACE
 %left LBRACE
-%locations
 
 %%
 input: /* empty */
@@ -34,7 +33,8 @@ input: /* empty */
 class_def: CLASS classname inheritance COLON suite
     {
         #ifdef DEBUG
-            cout << @$.first_line << ">>> ClassDef: class " 
+            cout << "[" << @$.last_column << "] "  << @$.first_line
+                 << ">>> ClassDef: class " 
                  << $2            << "("
                  << $3            << ")"
                  << endl;
@@ -84,10 +84,10 @@ class_arg: ID
 func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
           {
               #ifdef DEBUG
-                  cout << @$.first_line << ">> FuncDef: function " 
-                 << $2            << "("
-                 << $4            << ")"
-                 << endl;
+                  cout << "[" << @$.last_column << "] " << @$.first_line << ">> FuncDef: function " 
+                       << $2            << "("
+                       << $4            << ")"
+                       << endl;
               #endif
           }
 ;
@@ -145,7 +145,7 @@ suite:
 /* FUNCTION CALL */
 call: calls_chain
       {
-          cout << @$.first_line << ">>> Call: function " 
+          cout << "[" << @$.last_column << "] " << @$.first_line << ">>> Call: function " 
                << $$            << endl;
       }
 ;

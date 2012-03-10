@@ -10,11 +10,12 @@
     
     extern YYLTYPE yylloc;
     #define YY_USER_INIT yylloc.first_line=1;
+    #define SPACES_PER_INDENT 4;
     
-    int currentIndent = 0;
+    int indentLevel = 0;
     int countIndent(string);
-    string skip_message(string _ch);
-    void skip_comments();
+    string skipMessage(string _ch);
+    void skipComments();
     char projectIndent;
     bool isStartIndentSet = false;
 %}
@@ -25,8 +26,16 @@ quote1          "\'"[^'\\]*"\'"
 quote2          "\""[^"\\]*"\""
 
 %%
-\n\r|\r\n|\n|\r yylloc.first_line++; /* skip empty line */
-"#"             skip_comments(); yylloc.first_line++; /* skip comment */
+\n\r|\r\n|\n|\r {
+                    /* skip empty line */
+                    yylloc.first_line++;
+                    yylloc.last_column = 0;
+                }
+"#"             {
+                    /* skip comment */
+                    skipComments();
+                    yylloc.first_line++; 
+                }
 {defined}       {
                     yylval = yytext;
                     #ifdef DEBUG 
@@ -34,29 +43,18 @@ quote2          "\""[^"\\]*"\""
                     #endif
                     return DEFINED;
                 }
-^[ \t]+         {
-                    if(!isStartIndentSet) {
-                        projectIndent = yytext[0];
-                        isStartIndentSet = true;
-                    }
+^[ ]+           {
                     #ifdef DEBUG
-                        cout << yytext;
+                        if (0 != yyleng % SPACES_PER_INDENT) {
+                            cout << "Bad Indent" << endl;
+                        }
                     #endif
-                    int newIndent = countIndent(yytext);
-                    if (newIndent > currentIndent) {
-                        #ifdef DEBUG
-                            cout << "INDENT ->" 
-                                 << newIndent-currentIndent << endl;
-                        #endif
-                        currentIndent = newIndent;
-                    } 
-                    else if (newIndent < currentIndent) {
-                        #ifdef DEBUG
-                            cout << "DEDENT <- " 
-                                 << currentIndent-newIndent << endl;
-                        #endif
-                        currentIndent = newIndent;
-                   }
+                    yylloc.last_column = yyleng / SPACES_PER_INDENT;
+                    return INDENT;
+                }
+^[\t]+          {
+                    yylloc.last_column = yyleng;
+                    return INDENT;
                 }
 class           {
                     yylval = yytext;
@@ -80,8 +78,8 @@ def             {
                     #endif
                     return ID;
                 }
-\"\"\"          skip_message((string)("\"\"\"")); /* skip messages in triple double quotes */
-\'\'\'          skip_message((string)("\'\'\'")); /* skip messages in triple single quotes */
+\"\"\"          skipMessage((string)("\"\"\"")); /* skip messages in triple double quotes */
+\'\'\'          skipMessage((string)("\'\'\'")); /* skip messages in triple single quotes */
 {quote1}        {
                     yylval = yytext;
                     #ifdef DEBUG
@@ -116,7 +114,7 @@ int countIndent(string str)
     return str.size();
 }
 
-string skip_message(string _ch){
+string skipMessage(string _ch){
     string ch;
     string str = _ch;
     _ch = _ch[0];
@@ -134,10 +132,9 @@ string skip_message(string _ch){
         if ("\n\r" == ch || "\r\n" == ch || "\n" == ch || "\r" == ch)
             yylloc.first_line++;
     }
-
 }
 
-void skip_comments(){
+void skipComments(){
     string ch;
     for(;;ch = yyinput()) {
         if ("\n\r" == ch || "\r\n" == ch || "\n" == ch || "\r" == ch)
