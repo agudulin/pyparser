@@ -20,12 +20,13 @@
 
 %left RBRACE
 %left LBRACE
+%locations
 
 %%
 input: /* empty */
      | input class_def
      | input func_def
-     | input calls_chain
+     | input call
      | input error
 ;
 
@@ -33,9 +34,10 @@ input: /* empty */
 class_def: CLASS classname inheritance COLON suite
     {
         #ifdef DEBUG
-            cout << ">>> ClassDef: class " << $2
-                 << "("                    << $3
-                 << ")"                    << endl;
+            cout << @$.first_line << ">>> ClassDef: class " 
+                 << $2            << "("
+                 << $3            << ")"
+                 << endl;
         #endif
     }
 ;
@@ -82,9 +84,10 @@ class_arg: ID
 func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
           {
               #ifdef DEBUG
-                  cout << ">> FuncDef: function " << $2
-                       << "("                     << $4 
-                       << ")"                     << endl;
+                  cout << @$.first_line << ">> FuncDef: function " 
+                 << $2            << "("
+                 << $4            << ")"
+                 << endl;
               #endif
           }
 ;
@@ -140,18 +143,16 @@ suite:
 ;
 
 /* FUNCTION CALL */
+call: calls_chain
+      {
+          cout << @$.first_line << ">>> Call: function " 
+               << $$            << endl;
+      }
+;
 calls_chain: func_call
-             {
-                 #ifdef DEBUG
-                     cout << "> Call: function " << $$ << endl;
-                 #endif
-             }
            | calls_chain DOT func_call
              {
                  $$ += $2 + $3;
-                 #ifdef DEBUG
-                     cout << "> Call: function " << $$ << endl;
-                 #endif
              }
 ;
 func_call: dotted_name func_call_params
