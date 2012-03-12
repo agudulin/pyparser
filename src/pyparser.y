@@ -72,8 +72,9 @@ class_def: CLASS classname inheritance COLON suite
             } else {
                 cout << " <> STACK_EMPTY" << endl;
             }*/
-            cout << "[" << indent << "] "  << @$.first_line
-                 << ">>> ClassDef: class " 
+            cout //<< "[" << indent << "] "  
+                 << @$.first_line
+                 << " >> CLASS: " 
                  << $2            << "("
                  << $3            << ")"
                  << endl;
@@ -122,17 +123,19 @@ class_arg: ID
 /* FUNCTION */
 func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
           {
-              int indent = @$.last_column;
+              int indent = @1.last_column;
               string fnc_name = $2;
               stack< map<string, int> > tmp_st;
-
               while (!st.empty())
               {
-                  while (st.top().begin()->second >= indent)
+                  while (!st.empty() && st.top().begin()->second >= indent){
                       st.pop();
-                  fnc_name = st.top().begin()->first + "." + fnc_name;
-                  tmp_st.push(st.top());
-                  st.pop();
+                  }
+                  if (!st.empty()){
+                      fnc_name = st.top().begin()->first + "." + fnc_name;
+                      tmp_st.push(st.top());
+                      st.pop();
+                  }
               }
               while(!tmp_st.empty())
               {
@@ -141,7 +144,8 @@ func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
               }
 
               #ifdef DEBUG
-                  cout << "[" << indent << "] " << @$.first_line << ">> FuncDef: function " 
+                  cout //<< "[" << indent << "] " 
+                       << @$.first_line << " >> FUNC:  " 
                        << fnc_name      << "("
                        << $4            << ")"
                        << endl;
@@ -202,7 +206,8 @@ suite:
 /* FUNCTION CALL */
 call: calls_chain
       {
-          cout << "[" << @$.last_column << "] " << @$.first_line << ">>> Call: function " 
+          cout //<< "[" << @$.last_column << "] " 
+               << @$.first_line << " >> CALL:  " 
                << $$            << endl;
       }
 ;

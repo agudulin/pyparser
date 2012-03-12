@@ -43,27 +43,33 @@ quote2          "\""[^"\\]*"\""
                     #endif
                     return DEFINED;
                 }
-^[ ]+           {
+^[ ]*"class"    {
+                    yyleng -= 5;
                     #ifdef DEBUG
-                        if (0 != yyleng % SPACES_PER_INDENT) {
+                        if (0 != yyleng % SPACES_PER_INDENT){
                             cout << "Bad Indent" << endl;
                         }
                     #endif
                     yylloc.last_column = yyleng / SPACES_PER_INDENT;
-                    return INDENT;
+                    yylval = yytext;
+                    return CLASS;
+                }
+^[ ]*"def"      {
+                    yyleng -= 3;
+                    #ifdef DEBUG
+                        if (0 != yyleng % SPACES_PER_INDENT){
+                            cout << "Bad Indent" << endl;
+                        }
+                    #endif
+                    yylloc.last_column = yyleng / SPACES_PER_INDENT;
+                    yylval = yytext;
+                    return DEF;
                 }
 ^[\t]+          {
                     yylloc.last_column = yyleng;
                     return INDENT;
                 }
-class           {
-                    yylval = yytext;
-                    return CLASS;
-                }
-def             {
-                    yylval = yytext;
-                    return DEF;
-                }
+
 ":"             yylval = yytext; return COLON;
 "."             yylval = yytext; return DOT;
 ","             yylval = yytext; return COMMA;
