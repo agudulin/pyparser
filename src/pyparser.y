@@ -1,10 +1,14 @@
 %{
     #include <string>
     #include <iostream>
+    #include <map>
+    #include <stack>
 
     using namespace std;
     #define DEBUG
     #define YYSTYPE string
+
+    stack< map<string, int> > st;
     
     int yylex(void);
     void yyerror(const char *str) {
@@ -32,8 +36,43 @@ input: /* empty */
 /* CLASS */
 class_def: CLASS classname inheritance COLON suite
     {
+        int indent = @$.last_column;
+        map <string, int> cl_new;
+        cl_new[$2] = indent;
+
+        if (!st.empty()) {
+            map <string, int> cl_def = st.top();
+
+            if (cl_def.begin()->second < indent){
+                st.push(cl_new);
+
+            } else if (cl_def.begin()->second == indent){
+                st.pop();
+                st.push(cl_new);
+
+            } else {
+                while (!st.empty())
+                {
+                    cl_def = st.top();
+                    if (cl_def.begin()->second >= indent){
+                        st.pop();
+                    } else {
+                        break;
+                    }
+                }
+                st.push(cl_new);
+            }
+        } else {
+            st.push(cl_new);
+        }
+
         #ifdef DEBUG
-            cout << "[" << @$.last_column << "] "  << @$.first_line
+            /*if (!st.empty()){
+                cout << " <> STACK_TOP: " << st.top().begin()->first << endl;
+            } else {
+                cout << " <> STACK_EMPTY" << endl;
+            }*/
+            cout << "[" << indent << "] "  << @$.first_line
                  << ">>> ClassDef: class " 
                  << $2            << "("
                  << $3            << ")"
@@ -83,9 +122,27 @@ class_arg: ID
 /* FUNCTION */
 func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
           {
+              int indent = @$.last_column;
+              string fnc_name = $2;
+              stack< map<string, int> > tmp_st;
+
+              while (!st.empty())
+              {
+                  while (st.top().begin()->second >= indent)
+                      st.pop();
+                  fnc_name = st.top().begin()->first + "." + fnc_name;
+                  tmp_st.push(st.top());
+                  st.pop();
+              }
+              while(!tmp_st.empty())
+              {
+                  st.push(tmp_st.top());
+                  tmp_st.pop();
+              }
+
               #ifdef DEBUG
-                  cout << "[" << @$.last_column << "] " << @$.first_line << ">> FuncDef: function " 
-                       << $2            << "("
+                  cout << "[" << indent << "] " << @$.first_line << ">> FuncDef: function " 
+                       << fnc_name      << "("
                        << $4            << ")"
                        << endl;
               #endif
