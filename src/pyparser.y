@@ -8,7 +8,7 @@
     #define DEBUG
     #define YYSTYPE string
 
-    stack< map<string, int> > st;
+    stack <map <string, int> > st;
     
     int yylex(void);
     void yyerror(const char *str) {
@@ -125,7 +125,7 @@ func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
           {
               int indent = @1.last_column;
               string fnc_name = $2;
-              stack< map<string, int> > tmp_st;
+              stack <map <string, int> > tmp_st;
               while (!st.empty())
               {
                   while (!st.empty() && st.top().begin()->second >= indent){
