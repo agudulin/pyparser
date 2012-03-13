@@ -1,9 +1,9 @@
 class Foo:
-    pass
+	pass
 
 class Bar:
     class NewCl:
-        pass
+    	pass
     pass
 
 class Test(Bar):
@@ -15,11 +15,11 @@ class Test(Bar):
     def __init__(self):
         pass
     def test():
-        pass
+    	pass
 
 class Gaga:
     def __init__(self,
-                             created_at=None,
+							 created_at=None,
                              favorited=None,
                              id=None,
                              text=None,

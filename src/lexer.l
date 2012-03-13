@@ -54,6 +54,11 @@ quote2          "\""[^"\\]*"\""
                     yylval = yytext;
                     return CLASS;
                 }
+^[\t]*"class"   {
+                    yylloc.last_column = yyleng - 5;
+                    yylval = yytext;
+                    return CLASS;
+                }
 ^[ ]*"def"      {
                     yyleng -= 3;
                     #ifdef DEBUG
@@ -62,6 +67,11 @@ quote2          "\""[^"\\]*"\""
                         }
                     #endif
                     yylloc.last_column = yyleng / SPACES_PER_INDENT;
+                    yylval = yytext;
+                    return DEF;
+                }
+^[\t]*"def"     {
+                    yylloc.last_column = yyleng - 3;
                     yylval = yytext;
                     return DEF;
                 }
