@@ -29,7 +29,7 @@
 input: /* empty */
      | input class_def
      | input func_def
-     | input call
+     | input calls_chain
      | input error
 ;
 
@@ -204,17 +204,18 @@ suite:
 ;
 
 /* FUNCTION CALL */
-call: calls_chain
-      {
-          cout //<< "[" << @$.last_column << "] " 
-               << @$.first_line << " >> CALL:  " 
-               << $$            << endl;
-      }
-;
 calls_chain: func_call
+             {
+                 cout //<< "[" << @$.last_column << "] " 
+                      << @$.first_line << " >> CALL:  " 
+                      << $$            << endl;
+             }
            | calls_chain DOT func_call
              {
                  $$ += $2 + $3;
+                 cout //<< "[" << @$.last_column << "] " 
+                      << @$.first_line << " >> CALL:  " 
+                      << $$            << endl;
              }
 ;
 func_call: dotted_name func_call_params
