@@ -7,17 +7,18 @@
     #define DEBUG
     #define YYSTYPE string
 
-    typedef pair <string, int> meta_class;
-    typedef stack<meta_class> class_stack;
-    class_stack st;
+    typedef pair <string, int> meta_data;
+    typedef stack <meta_data> meta_stack;
+    meta_stack class_st;
+    meta_stack func_st;
 
-    void clean_stack( class_stack& st, int indent )
+    void clean_stack( meta_stack& stack, int indent )
     {
-        while(!st.empty())
+        while(!stack.empty())
         {
-            if( indent > st.top().second )
+            if( indent > stack.top().second )
                 break;
-            st.pop();
+            stack.pop();
         }
     }
 
@@ -48,9 +49,10 @@ input: /* empty */
 class_def: CLASS classname inheritance COLON suite
     {
         int indent = @$.last_column;
-        meta_class cl_new($2, indent);
-        clean_stack( st, indent );
-        st.push( cl_new );
+        meta_data new_class($2, indent);
+
+        clean_stack( class_st, indent );
+        class_st.push( new_class );
 
         #ifdef DEBUG
             /*if (!st.empty()){
@@ -111,13 +113,14 @@ func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
           {
               int indent = @1.last_column;
               string fnc_name = $2;
-              clean_stack( st, indent );
-              class_stack tmp_st(st);
 
-              while (!tmp_st.empty())
+              clean_stack( class_st, indent );
+              meta_stack tmp_class_st(class_st);
+
+              while (!tmp_class_st.empty())
               {
-                  fnc_name = tmp_st.top().first + "." + fnc_name;
-                  tmp_st.pop();
+                  fnc_name = tmp_class_st.top().first + "." + fnc_name;
+                  tmp_class_st.pop();
               }
 
               #ifdef DEBUG
