@@ -10,7 +10,7 @@
     
     extern YYLTYPE yylloc;
     #define YY_USER_INIT yylloc.first_line=1;
-    #define SPACES_PER_INDENT 4;
+    #define SPACES_PER_INDENT 4
     
     int indentLevel = 0;
     int countIndent(string);
@@ -145,15 +145,14 @@ string skipMessage(string _ch){
         } else
             count = 1;
 
-        if ("\n\r" == ch || "\r\n" == ch || "\n" == ch || "\r" == ch)
+        if ("\n" == ch || "\r" == ch)
             yylloc.first_line++;
     }
 }
 
 void skipComments(){
-    string ch;
-    for(;;ch = yyinput()) {
-        if ("\n\r" == ch || "\r\n" == ch || "\n" == ch || "\r" == ch)
+    for(char ch = yyinput();;ch = yyinput()) {
+        if ('\0' == ch || '\n' == ch || '\r' == ch)
             break;
     }
 }
