@@ -77,7 +77,7 @@ quote2          "\""[^"\\]*"\""
                 }
 ^[\t]+          {
                     yylloc.last_column = yyleng;
-                    return INDENT;
+                    //return INDENT;
                 }
 
 ":"             yylval = yytext; return COLON;
@@ -123,10 +123,10 @@ quote2          "\""[^"\\]*"\""
 
 int countIndent(string str)
 {
-    if(projectIndent != str[0])
+    /*if(projectIndent != str[0])
         #ifdef DEBUG
             cout << "WTF :( TABS and SPACES are in one file" << endl;
-        #endif
+        #endif*/
     return str.size();
 }
 

@@ -15,7 +15,7 @@ class Test(Bar):
     def __init__(self):
         pass
     def test():
-    	pass
+    	foo(x=10*(1-5))
 
 class Gaga:
     def __init__(self,
