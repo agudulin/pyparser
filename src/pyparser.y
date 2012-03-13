@@ -1,15 +1,26 @@
 %{
     #include <string>
     #include <iostream>
-    #include <map>
     #include <stack>
 
     using namespace std;
     #define DEBUG
     #define YYSTYPE string
 
-    stack <map <string, int> > st;
-    
+    typedef pair <string, int> meta_class;
+    typedef stack<meta_class> class_stack;
+    class_stack st;
+
+    void clean_stack( class_stack& st, int indent )
+    {
+        while(!st.empty())
+        {
+            if( indent > st.top().second )
+                break;
+            st.pop();
+        }
+    }
+
     int yylex(void);
     void yyerror(const char *str) {
         #ifdef DEBUG
@@ -37,34 +48,9 @@ input: /* empty */
 class_def: CLASS classname inheritance COLON suite
     {
         int indent = @$.last_column;
-        map <string, int> cl_new;
-        cl_new[$2] = indent;
-
-        if (!st.empty()) {
-            map <string, int> cl_def = st.top();
-
-            if (cl_def.begin()->second < indent){
-                st.push(cl_new);
-
-            } else if (cl_def.begin()->second == indent){
-                st.pop();
-                st.push(cl_new);
-
-            } else {
-                while (!st.empty())
-                {
-                    cl_def = st.top();
-                    if (cl_def.begin()->second >= indent){
-                        st.pop();
-                    } else {
-                        break;
-                    }
-                }
-                st.push(cl_new);
-            }
-        } else {
-            st.push(cl_new);
-        }
+        meta_class cl_new($2, indent);
+        clean_stack( st, indent );
+        st.push( cl_new );
 
         #ifdef DEBUG
             /*if (!st.empty()){
@@ -125,21 +111,12 @@ func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
           {
               int indent = @1.last_column;
               string fnc_name = $2;
-              stack <map <string, int> > tmp_st;
-              while (!st.empty())
+              clean_stack( st, indent );
+              class_stack tmp_st(st);
+
+              while (!tmp_st.empty())
               {
-                  while (!st.empty() && st.top().begin()->second >= indent){
-                      st.pop();
-                  }
-                  if (!st.empty()){
-                      fnc_name = st.top().begin()->first + "." + fnc_name;
-                      tmp_st.push(st.top());
-                      st.pop();
-                  }
-              }
-              while(!tmp_st.empty())
-              {
-                  st.push(tmp_st.top());
+                  fnc_name = tmp_st.top().first + "." + fnc_name;
                   tmp_st.pop();
               }
 
