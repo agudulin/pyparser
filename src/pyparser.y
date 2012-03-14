@@ -9,18 +9,13 @@
 
     typedef pair <string, int> meta_data;
     typedef stack <meta_data> meta_stack;
-    meta_stack class_st;
-    meta_stack func_st;
 
-    void clean_stack( meta_stack& stack, int indent )
-    {
-        while(!stack.empty())
-        {
-            if( indent > stack.top().second )
-                break;
-            stack.pop();
-        }
-    }
+    static meta_stack class_st;
+    static meta_stack func_st;
+    
+    // remove all instructions (meta data -> string) from stack 
+    // with largest indent than current instruction has
+    static void clean_stack( meta_stack& stack, int indent );
 
     int yylex(void);
     void yyerror(const char *str) {
@@ -113,7 +108,7 @@ func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
           {
               int indent = @1.last_column;
               string fnc_name = $2;
-
+              
               clean_stack( class_st, indent );
               meta_stack tmp_class_st(class_st);
 
@@ -276,6 +271,16 @@ other_token: dotted_name
            | RBRACE
 ;*/
 %%
+
+static void clean_stack( meta_stack& stack, int indent )
+{
+    while(!stack.empty())
+    {
+        if( indent > stack.top().second )
+            break;
+        stack.pop();
+    }
+}
 
 int main()
 {
