@@ -12,6 +12,7 @@
 
     static meta_stack class_st;
     static meta_stack func_st;
+    static string func_name = "";
     
     // remove all instructions (meta data -> string) from stack 
     // with largest indent than current instruction has
@@ -183,20 +184,24 @@ suite:
 calls_chain: func_call
              {
                  cout //<< "[" << @$.last_column << "] " 
-                      << @$.first_line << " >> CALL:  " 
-                      << $$            << endl;
+                      << @$.first_line 
+                      << " Function: " << func_name 
+                      << " >> CALL: "  << $$ << endl;
              }
            | calls_chain DOT func_call
              {
                  $$ += $2 + $3;
                  cout //<< "[" << @$.last_column << "] " 
-                      << @$.first_line << " >> CALL:  " 
-                      << $$            << endl;
+                      << @$.first_line 
+                      << " Function: " << func_name 
+                      << " >> CALL: "  << $$ << endl;
              }
 ;
 func_call: dotted_name func_call_params
            {
-              string call_name = $1;
+              bool isFirst = true;
+
+              func_name = "";
               // if func_call_params are in more than 1 line
               //   then indent can be unexpected
               //   but @1 determines it correctly
@@ -207,11 +212,19 @@ func_call: dotted_name func_call_params
 
               while (!tmp_func_st.empty())
               {
-                  call_name = tmp_func_st.top().first + "." + call_name;
+                  if(isFirst)
+                  {
+                      func_name = tmp_func_st.top().first;
+                      tmp_func_st.pop();
+                      isFirst = false;
+                      continue;
+                  }
+                  func_name = tmp_func_st.top().first + "." + func_name;
                   tmp_func_st.pop();
               }
 
-              $$ = call_name + $2;
+
+              $$ = $1 + $2;
            }
 ;
 dotted_name: ID
