@@ -13,11 +13,10 @@
     #define SPACES_PER_INDENT 4
     
     int indentLevel = 0;
-    int countIndent(string);
+    bool isNewLine = false;
+
     string skipMessage(string _ch);
     void skipComments();
-    char projectIndent;
-    bool isStartIndentSet = false;
 %}
 
 identifier      [_a-zA-Z][_a-zA-Z0-9]*
@@ -30,11 +29,12 @@ quote2          "\""[^"\\]*"\""
                     /* skip empty line */
                     yylloc.first_line++;
                     yylloc.last_column = 0;
+                    isNewLine = true;
                 }
 "#"             {
                     /* skip comment */
                     skipComments();
-                    yylloc.first_line++; 
+                    yylloc.last_column++;
                 }
 {defined}       {
                     yylval = yytext;
@@ -43,41 +43,25 @@ quote2          "\""[^"\\]*"\""
                     #endif
                     return DEFINED;
                 }
-^[ ]*"class"    {
-                    yyleng -= 5;
-                    #ifdef DEBUG
-                        if (0 != yyleng % SPACES_PER_INDENT){
-                            cout << "Bad Indent" << endl;
-                        }
-                    #endif
-                    yylloc.last_column = yyleng / SPACES_PER_INDENT;
-                    yylval = yytext;
-                    return CLASS;
-                }
-^[\t]*"class"   {
-                    yylloc.last_column = yyleng - 5;
-                    yylval = yytext;
-                    return CLASS;
-                }
-^[ ]*"def"      {
-                    yyleng -= 3;
-                    #ifdef DEBUG
-                        if (0 != yyleng % SPACES_PER_INDENT){
-                            cout << "Bad Indent" << endl;
-                        }
-                    #endif
-                    yylloc.last_column = yyleng / SPACES_PER_INDENT;
-                    yylval = yytext;
-                    return DEF;
-                }
-^[\t]*"def"     {
-                    yylloc.last_column = yyleng - 3;
-                    yylval = yytext;
-                    return DEF;
+^[ ]+           {
+                    if (isNewLine == true && 0 == yyleng % SPACES_PER_INDENT)
+                        yylloc.last_column = yyleng / SPACES_PER_INDENT;
+
+                    isNewLine = false;
                 }
 ^[\t]+          {
-                    yylloc.last_column = yyleng;
-                    //return INDENT;
+                    if (isNewLine == true)
+                        yylloc.last_column = yyleng;
+
+                    isNewLine = false;
+                }
+class           {
+                    yylval = yytext;
+                    return CLASS;
+                }
+def             {
+                    yylval = yytext;
+                    return DEF;
                 }
 
 ":"             yylval = yytext; return COLON;
@@ -121,15 +105,6 @@ quote2          "\""[^"\\]*"\""
                 }
 %%
 
-int countIndent(string str)
-{
-    /*if(projectIndent != str[0])
-        #ifdef DEBUG
-            cout << "WTF :( TABS and SPACES are in one file" << endl;
-        #endif*/
-    return str.size();
-}
-
 string skipMessage(string _ch){
     string ch;
     string str = _ch;
@@ -152,7 +127,9 @@ string skipMessage(string _ch){
 
 void skipComments(){
     for(char ch = yyinput();;ch = yyinput()) {
-        if ('\0' == ch || '\n' == ch || '\r' == ch)
+        if ('\0' == ch || '\n' == ch || '\r' == ch) {
+            yylloc.first_line++;
             break;
+        }
     }
 }

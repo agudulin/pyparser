@@ -43,18 +43,13 @@ input: /* empty */
 /* CLASS */
 class_def: CLASS classname inheritance COLON suite
     {
-        int indent = @$.last_column;
+        int indent = @1.last_column;
         meta_data new_class($2, indent);
 
         clean_stack( class_st, indent );
         class_st.push( new_class );
 
         #ifdef DEBUG
-            /*if (!st.empty()){
-                cout << " <> STACK_TOP: " << st.top().begin()->first << endl;
-            } else {
-                cout << " <> STACK_EMPTY" << endl;
-            }*/
             cout //<< "[" << indent << "] "  
                  << @$.first_line
                  << " >> CLASS: " 
@@ -106,8 +101,8 @@ class_arg: ID
 /* FUNCTION */
 func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
           {
-              int indent = @1.last_column;
               string fnc_name = $2;
+              int indent = @1.last_column;
               
               clean_stack( class_st, indent );
               meta_stack tmp_class_st(class_st);
@@ -117,6 +112,12 @@ func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
                   fnc_name = tmp_class_st.top().first + "." + fnc_name;
                   tmp_class_st.pop();
               }
+
+              // replace fnc_name for $2 for less information 
+              //   about function location
+              meta_data new_func(fnc_name, indent);
+              clean_stack( func_st, indent );
+              func_st.push( new_func );
 
               #ifdef DEBUG
                   cout //<< "[" << indent << "] " 
@@ -195,7 +196,22 @@ calls_chain: func_call
 ;
 func_call: dotted_name func_call_params
            {
-              $$ = $1 + $2;
+              string call_name = $1;
+              // if func_call_params are in more than 1 line
+              //   then indent can be unexpected
+              //   but @1 determines it correctly
+              int indent = @1.last_column;
+
+              clean_stack( func_st, indent );
+              meta_stack tmp_func_st(func_st);
+
+              while (!tmp_func_st.empty())
+              {
+                  call_name = tmp_func_st.top().first + "." + call_name;
+                  tmp_func_st.pop();
+              }
+
+              $$ = call_name + $2;
            }
 ;
 dotted_name: ID
