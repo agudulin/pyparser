@@ -13,6 +13,7 @@
     static meta_stack class_st;
     static meta_stack func_st;
     static string func_name = "";
+    static string call_params = "";
     
     // remove all instructions (meta data -> string) from stack 
     // with largest indent than current instruction has
@@ -186,7 +187,8 @@ calls_chain: func_call
                  cout //<< "[" << @$.last_column << "] " 
                       << @$.first_line 
                       << " Function: " << func_name 
-                      << " >> CALL: "  << $$ << endl;
+                      << " >> CALL: "  << $$
+                      << " >> PARAM: " << call_params << endl;
              }
            | calls_chain DOT func_call
              {
@@ -194,7 +196,8 @@ calls_chain: func_call
                  cout //<< "[" << @$.last_column << "] " 
                       << @$.first_line 
                       << " Function: " << func_name 
-                      << " >> CALL: "  << $$ << endl;
+                      << " >> CALL: "  << $$
+                      << " >> PARAM: " << call_params << endl;
              }
 ;
 func_call: dotted_name func_call_params
@@ -235,10 +238,12 @@ dotted_name: ID
 ;
 func_call_params: LBRACE RBRACE
                   {
+                      call_params = "";
                       $$ = $1 + $2;
                   }
                 | LBRACE call_params RBRACE
                   {
+                      call_params = $2;
                       $$ = $1 + $2 + $3;
                   }
 ;
