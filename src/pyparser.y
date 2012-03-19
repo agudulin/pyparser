@@ -1,12 +1,36 @@
 %{
+///////////////////////////////////////////////////////////////////////////////
+// This file is the part of SourceAnalyzer source codes.                     //
+// SourceAnalyzer is a program that search out a call-graph of               //
+// given source code. See <http://trac-hg.assembla.com/SourceAnalyzer>       //
+// Copyright (C) 2008-2009 SourceAnalyzer contributors                       //
+//                                                                           //
+// This program is free software: you can redistribute it and/or modify      //
+// it under the terms of the GNU General Public License as published by      //
+// the Free Software Foundation, either version 3 of the License,            //
+// any later version.                                                        //
+//                                                                           //
+// This program is distributed in the hope that it will be useful,           //
+// but WITHOUT ANY WARRANTY; without even the implied warranty of            //
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             //
+// GNU General Public License for more details.                              //
+//                                                                           //
+// You should have received a copy of the GNU General Public License         //
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.     //
+///////////////////////////////////////////////////////////////////////////////
+
+    #define DEBUG
+    #include <cstdio>
     #include <string>
     #include <iostream>
     #include <stack>
 
+    //#include "callgraph.h"
+    
     using namespace std;
-    #define DEBUG
     #define YYSTYPE string
-
+    #define YYERROR_VERBOSE 1
+    
     typedef pair <string, int> meta_data;
     typedef stack <meta_data> meta_stack;
 
@@ -14,18 +38,32 @@
     static meta_stack func_st;
     static string func_name = "";
     static string call_params = "";
-    
+    static string file_name = "";
+
     // remove all instructions (meta data -> string) from stack 
     // with largest indent than current instruction has
     static void clean_stack( meta_stack& stack, int indent );
 
+    int  wrapRet = 1;
+    
     int yylex(void);
-    void yyerror(const char *str) {
-        #ifdef DEBUG
-            //cout << str << endl;
-        #endif
+    extern "C" {
+        int yywrap( void ) {
+            return wrapRet;
+        }
     }
+    void yyerror(const char *str) {
+        //#ifdef DEBUG
+          //  DEBUGMSG( line << ": SA Python Parser: " << str );
+        //#endif
+    }    
+    extern FILE* yyin;   
+
+    static const string type = "undefined";
+    static bool isInteractive;
+    //CallGraph* callGraph;
     int main();
+
 %}
 
 %token CLASS DEFINED COLON DOT LBRACE RBRACE ID OTHER DEF COMMA STAR MESSAGE
@@ -128,6 +166,10 @@ func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
                        << $4            << ")"
                        << endl;
               #endif
+
+             //callGraph->addDefinition( fnc_name, $4, type, @$.first_line, file_name );
+             //callGraph->addImplementation( fnc_name, $4, type, @$.first_line, file_name );
+
           }
 ;
 funcname: ID
@@ -184,20 +226,26 @@ suite:
 /* FUNCTION CALL */
 calls_chain: func_call
              {
-                 cout //<< "[" << @$.last_column << "] " 
-                      << @$.first_line 
-                      << " Function: " << func_name 
-                      << " >> CALL: "  << $$
-                      << " >> PARAM: " << call_params << endl;
+                #ifdef DEBUG
+                     cout //<< "[" << @$.last_column << "] " 
+                          << @$.first_line
+                          << " Function: " << func_name 
+                          << " >> CALL: "  << $$
+                          << " >> PARAM: " << call_params << endl;
+                #endif
+                //callGraph->addCall( func_name, $$, call_params, @$.first_line, file_name );
              }
            | calls_chain DOT func_call
              {
                  $$ += $2 + $3;
-                 cout //<< "[" << @$.last_column << "] " 
-                      << @$.first_line 
-                      << " Function: " << func_name 
-                      << " >> CALL: "  << $$
-                      << " >> PARAM: " << call_params << endl;
+                #ifdef DEBUG
+                     cout //<< "[" << @$.last_column << "] " 
+                          << @$.first_line 
+                          << " Function: " << func_name 
+                          << " >> CALL: "  << $$
+                          << " >> PARAM: " << call_params << endl;                     
+                #endif
+                //callGraph->addCall( func_name, $$, call_params, @$.first_line, file_name );
              }
 ;
 func_call: dotted_name func_call_params
@@ -225,7 +273,6 @@ func_call: dotted_name func_call_params
                   func_name = tmp_func_st.top().first + "." + func_name;
                   tmp_func_st.pop();
               }
-
 
               $$ = $1 + $2;
            }
@@ -316,6 +363,35 @@ static void clean_stack( meta_stack& stack, int indent )
     }
 }
 
+/*int parse( CallGraph& callGraphObj, bool isInter = false, const string fileName = "" ) {
+    int returnCode = 0;
+    
+    isInteractive = isInter;
+
+    if( true == isInter ) {
+        wrapRet = 0;
+    }
+    else {
+        wrapRet = 1;
+    }
+
+    if( fileName == "" ) {
+        file_name = "unknown";
+        yyin = stdin;
+        callGraph = &callGraphObj;
+        returnCode = yyparse();
+    }
+    else {
+        file_name = fileName;
+        FILE* file;
+        file = fopen( fileName.c_str(), "r" );
+        yyin = file;
+        callGraph = &callGraphObj;
+        returnCode = yyparse();
+        fclose( yyin );
+    }
+    return returnCode;
+}*/
 int main()
 {
     return yyparse();

@@ -12,11 +12,11 @@
     #define YY_USER_INIT yylloc.first_line=1;
     #define SPACES_PER_INDENT 4
     
-    int indentLevel = 0;
-    bool isNewLine = false;
+    static int indentLevel = 0;
+    static bool isNewLine = false;
 
-    string skipMessage(string _ch);
-    void skipComments();
+    static string skipMessage(string _ch);
+    static void skipComments();
 %}
 
 identifier      [_a-zA-Z][_a-zA-Z0-9]*
@@ -105,7 +105,7 @@ def             {
                 }
 %%
 
-string skipMessage(string _ch){
+static string skipMessage(string _ch){
     string ch;
     string str = _ch;
     _ch = _ch[0];
@@ -125,7 +125,7 @@ string skipMessage(string _ch){
     }
 }
 
-void skipComments(){
+static void skipComments(){
     for(char ch = yyinput();;ch = yyinput()) {
         if ('\0' == ch || '\n' == ch || '\r' == ch) {
             yylloc.first_line++;
