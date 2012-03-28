@@ -14,7 +14,9 @@ Features
 
     => Foo
 
-- function definition::
+- function definition
+
+::
 
     class Test:
         def foo(a, b):
@@ -27,7 +29,9 @@ Features
     => Test.bar(c, d)
     
 
-- function call::
+- function call
+
+::
 
     foo().bar().a.b()
 
@@ -40,18 +44,22 @@ Features
 Bugs and so on
 --------------
 
-    - can't work with mixed spaces and tabs
-    - can't define call params in triple quotes::
+- can't work with mixed spaces and tabs
+- can't define call params in triple quotes
 
-        foo('''bar''', 1) 
+::
 
-    ::
+    foo('''bar''', 1) 
+
+::
 
         => foo(, 1)
 
-    - can't define lambda functions
-    - can't define function call in some function parameters::
+- can't define lambda functions
+- can't define function call in some function parameters
 
-        def bar(x=foo())
+::
 
-    - ...and ignores that 'some function' definition [BUG]
+    def bar(x=foo())
+
+- ...and ignores that 'some function' definition [BUG]
