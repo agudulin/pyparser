@@ -89,14 +89,14 @@ class_def: CLASS classname inheritance COLON suite
         clean_stack( class_st, indent );
         class_st.push( new_class );
 
-        #ifdef DEBUG
+        /*#ifdef DEBUG
             cout //<< "[" << indent << "] "  
                  << @$.first_line
                  << " >> CLASS: " 
                  << $2            << "("
                  << $3            << ")"
                  << endl;
-        #endif
+        #endif*/
     }
 ;
 classname: ID

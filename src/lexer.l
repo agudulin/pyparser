@@ -12,7 +12,6 @@
     #define YY_USER_INIT yylloc.first_line=1;
     #define SPACES_PER_INDENT 4
     
-    static int indentLevel = 0;
     static bool isNewLine = false;
 
     static string skipMessage(string _ch);
@@ -34,7 +33,6 @@ quote2          "\""[^"\\]*"\""
 "#"             {
                     /* skip comment */
                     skipComments();
-                    yylloc.last_column++;
                 }
 {defined}       {
                     yylval = yytext;
@@ -78,8 +76,16 @@ def             {
                     #endif
                     return ID;
                 }
-\"\"\"          skipMessage((string)("\"\"\"")); /* skip messages in triple double quotes */
-\'\'\'          skipMessage((string)("\'\'\'")); /* skip messages in triple single quotes */
+\"\"\"          {
+                    /* skip messages in triple double quotes */
+                    yylval = skipMessage((string)("\"\"\""));
+                    return MESSAGE;
+                }
+\'\'\'          {
+                    /* skip messages in triple single quotes */
+                    yylval = skipMessage((string)("\'\'\'"));
+                    return MESSAGE;
+                }
 {quote1}        {
                     yylval = yytext;
                     #ifdef DEBUG
