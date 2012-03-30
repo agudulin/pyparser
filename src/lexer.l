@@ -3,7 +3,7 @@
     #include <iostream>
 
     using namespace std;
-    //#define DEBUG
+    #define DEBUG
     #define YYSTYPE string
 
     #include "pyparser.tab.h"
@@ -79,11 +79,17 @@ def             {
 \"\"\"          {
                     /* skip messages in triple double quotes */
                     yylval = skipMessage((string)("\"\"\""));
+                    #ifdef DEBUG
+                        cout << "MSG: " << yylval << endl;
+                    #endif
                     return MESSAGE;
                 }
 \'\'\'          {
                     /* skip messages in triple single quotes */
                     yylval = skipMessage((string)("\'\'\'"));
+                    #ifdef DEBUG
+                        cout << "MSG: " << yylval << endl;
+                    #endif
                     return MESSAGE;
                 }
 {quote1}        {

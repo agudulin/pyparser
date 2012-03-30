@@ -45,7 +45,7 @@ Bugs and so on
 --------------
 
 - can't work with mixed spaces and tabs
-- can't define call params in triple quotes
+- **CallGraph Bug**: can't define call params in triple quotes
 
 ::
 
