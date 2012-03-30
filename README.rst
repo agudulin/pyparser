@@ -45,16 +45,6 @@ Bugs and so on
 --------------
 
 - can't work with mixed spaces and tabs
-- **CallGraph Bug**: can't define call params in triple quotes
-
-::
-
-    foo('''bar''', 1) 
-
-::
-
-        => foo(, 1)
-
 - can't define lambda functions
 - can't define function call in some function parameters
 
