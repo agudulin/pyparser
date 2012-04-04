@@ -53,3 +53,4 @@ Bugs and so on
     def bar(x=foo())
 
 - ...and ignores that 'some function' definition [BUG]
+- can't define decorator call
