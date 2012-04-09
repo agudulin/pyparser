@@ -3,7 +3,7 @@
     #include <iostream>
 
     using namespace std;
-    #define DEBUG
+    //#define DEBUG
     #define YYSTYPE string
 
     #include "pyparser.tab.h"

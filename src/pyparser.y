@@ -89,14 +89,14 @@ class_def: CLASS classname inheritance COLON suite
         clean_stack( class_st, indent );
         class_st.push( new_class );
 
-        /*#ifdef DEBUG
+        #ifdef DEBUG
             cout //<< "[" << indent << "] "  
                  << @$.first_line
                  << " >> CLASS: " 
                  << $2            << "("
                  << $3            << ")"
                  << endl;
-        #endif*/
+        #endif
     }
 ;
 classname: ID
@@ -122,18 +122,10 @@ class_args_list: /* empty */
                      $$ = $1;
                  }
 ;
-class_arg: ID
-         | class_arg COMMA
+class_arg: dotted_name
+         | class_arg COMMA dotted_name
            {
-               $$ += $2;
-           }
-         | class_arg ID
-           {
-               $$ += $2;
-           }
-         | class_arg DOT
-           {
-               $$ += $2;
+               $$ += $2 + $3;
            }
 ;
 /* end of CLASS */

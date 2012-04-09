@@ -9,7 +9,7 @@ Data structures that power Requests.
 """
 
 
-class CaseInsensitiveDict(dict):
+class CaseInsensitiveDict(dict, test.test2, dict.rest, rest, pwets, sds, sd.ada.dsd.sada, adsd.ad):
     """Case-insensitive Dictionary
 
     For example, ``headers['content-encoding']`` will return the
