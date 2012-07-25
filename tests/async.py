@@ -27,80 +27,73 @@ __all__ = (
     'get', 'options', 'head', 'post', 'put', 'patch', 'delete', 'request'
 )
 
-
-def patched(f):
-    """Patches a given API function to not send."""
-
+class Wrapped:
     def wrapped(*args, **kwargs):
+        pass
 
-        kwargs['return_response'] = False
-        kwargs['prefetch'] = True
+class Test:
+    def patched(f):
+        """Patches a given API function to not send."""
 
-        config = kwargs.get('config', {})
-        config.update(safe_mode=True)
-
-        kwargs['config'] = config
-
-        return f(*args, **kwargs)
-
-    return wrapped
+        w = Wrapped()
+        w.wrapped()
 
 
-def send(r, pool=None, prefetch=False):
-    """Sends the request object using the specified pool. If a pool isn't
-    specified this method blocks. Pools are useful because you can specify size
-    and can hence limit concurrency."""
+    def send(r, pool=None, prefetch=False):
+        """Sends the request object using the specified pool. If a pool isn't
+        specified this method blocks. Pools are useful because you can specify size
+        and can hence limit concurrency."""
 
-    if pool != None:
-        return pool.spawn(r.send, prefetch=prefetch)
+        if pool != None:
+            return pool.spawn(r.send, prefetch=prefetch)
 
-    return gevent.spawn(r.send, prefetch=prefetch)
-
-
-# Patched requests.api functions.
-get = patched(api.get)
-options = patched(api.options)
-head = patched(api.head)
-post = patched(api.post)
-put = patched(api.put)
-patch = patched(api.patch)
-delete = patched(api.delete)
-request = patched(api.request)
+        return gevent.spawn(r.send, prefetch=prefetch)
 
 
-def map(requests, prefetch=True, size=None):
-    """Concurrently converts a list of Requests to Responses.
-
-    :param requests: a collection of Request objects.
-    :param prefetch: If False, the content will not be downloaded immediately.
-    :param size: Specifies the number of requests to make at a time. If None, no throttling occurs.
-    """
-
-    requests = list(requests)
-
-    pool = Pool(size) if size else None
-    jobs = [send(r, pool, prefetch=prefetch) for r in requests]
-    gevent.joinall(jobs)
-
-    return [r.response for r in requests]
+    # Patched requests.api functions.
+    get = patched(api.get)
+    options = patched(api.options)
+    head = patched(api.head)
+    post = patched(api.post)
+    put = patched(api.put)
+    patch = patched(api.patch)
+    delete = patched(api.delete)
+    request = patched(api.request)
 
 
-def imap(requests, prefetch=True, size=2):
-    """Concurrently converts a generator object of Requests to
-    a generator of Responses.
+    def map(requests, prefetch=True, size=None):
+        """Concurrently converts a list of Requests to Responses.
 
-    :param requests: a generator of Request objects.
-    :param prefetch: If False, the content will not be downloaded immediately.
-    :param size: Specifies the number of requests to make at a time. default is 2
-    """
+        :param requests: a collection of Request objects.
+        :param prefetch: If False, the content will not be downloaded immediately.
+        :param size: Specifies the number of requests to make at a time. If None, no throttling occurs.
+        """
 
-    pool = Pool(size)
+        requests = list(requests)
 
-    def send(r):
-        r.send(prefetch)
-        return r.response
+        pool = Pool(size) if size else None
+        jobs = [send(r, pool, prefetch=prefetch) for r in requests]
+        gevent.joinall(jobs)
 
-    for r in pool.imap_unordered(send, requests):
-        yield r
+        return [r.response for r in requests]
 
-    pool.join()
+
+    def imap(requests, prefetch=True, size=2):
+        """Concurrently converts a generator object of Requests to
+        a generator of Responses.
+
+        :param requests: a generator of Request objects.
+        :param prefetch: If False, the content will not be downloaded immediately.
+        :param size: Specifies the number of requests to make at a time. default is 2
+        """
+
+        pool = Pool(size)
+
+        def send(r):
+            r.send(prefetch)
+            return r.response
+
+        for r in pool.imap_unordered(send, requests):
+            yield r
+
+        pool.join()

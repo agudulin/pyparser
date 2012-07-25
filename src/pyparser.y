@@ -44,7 +44,7 @@
     // with largest indent than current instruction has
     static void clean_stack( meta_stack& stack, int indent );
 
-    int  wrapRet = 1;
+    int wrapRet = 1;
     
     int yylex(void);
     extern "C" {
@@ -63,7 +63,7 @@
     static bool isInteractive;
     //CallGraph* callGraph;
     int main();
-
+    string get_call_function_name_from_call_chain(string call_chain);
 %}
 
 %token CLASS DEFINED COLON DOT LBRACE RBRACE ID OTHER DEF COMMA STAR MESSAGE
@@ -141,7 +141,9 @@ func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
 
               while (!tmp_class_st.empty())
               {
-                  fnc_name = tmp_class_st.top().first + "." + fnc_name;
+                  // Delete comment to turn on full function name:
+                  //    TestClass.test_function
+                  // fnc_name = tmp_class_st.top().first + "." + fnc_name;
                   tmp_class_st.pop();
               }
 
@@ -180,6 +182,7 @@ func_args_list: /* empty */
 ;
 func_arg: dotted_name
         | star_arg
+        | calls_chain
         | func_arg OTHER
           {
               $$ += $2;
@@ -197,6 +200,10 @@ func_arg: dotted_name
               $$ += $2;
           }
         | func_arg MESSAGE
+          {
+              $$ += $2;
+          }
+        | func_arg calls_chain
           {
               $$ += $2;
           }
@@ -221,20 +228,22 @@ calls_chain: func_call
                 #ifdef DEBUG
                      cout //<< "[" << @$.last_column << "] " 
                           << @$.first_line
-                          << " Function: " << func_name 
-                          << " >> CALL: "  << $$
+                          << " Function1: " << func_name 
+                          << " >> CALL: "  << get_call_function_name_from_call_chain($$)
                           << " >> PARAM: " << call_params << endl;
                 #endif
+
                 //callGraph->addCall( func_name, $$, call_params, @$.first_line, file_name );
              }
            | calls_chain DOT func_call
              {
-                 $$ += $2 + $3;
+                $$ += $2 + $3;
+
                 #ifdef DEBUG
                      cout //<< "[" << @$.last_column << "] " 
                           << @$.first_line 
-                          << " Function: " << func_name 
-                          << " >> CALL: "  << $$
+                          << " Function2: " << func_name 
+                          << " >> CALL: "  << get_call_function_name_from_call_chain($$)
                           << " >> PARAM: " << call_params << endl;                     
                 #endif
                 //callGraph->addCall( func_name, $$, call_params, @$.first_line, file_name );
@@ -262,8 +271,12 @@ func_call: dotted_name func_call_params
                       isFirst = false;
                       continue;
                   }
-                  func_name = tmp_func_st.top().first + "." + func_name;
+                  // func_name = tmp_func_st.top().first + "." + func_name;
                   tmp_func_st.pop();
+              }
+
+              if (func_name == "") {
+                  func_name = "__main__";
               }
 
               $$ = $1 + $2;
@@ -384,6 +397,38 @@ static void clean_stack( meta_stack& stack, int indent )
     }
     return returnCode;
 }*/
+
+string get_call_function_name_from_call_chain(string call_chain)
+{
+    int braces = 0;
+    string name = "";
+    for (int i = call_chain.length() - 1; i > 0; i--)
+    {
+        switch (call_chain[i])
+        {
+            case ')': braces ++;
+                      continue;
+            case '(': braces --;
+                      if (braces == 0) {
+                          for (int j = i-1; j >= 0; j--)
+                          {
+                              if (call_chain[j] != '.')
+                              {
+                                  name = call_chain[j] + name;
+                              }
+                              else
+                              {
+                                  return name;
+                              }
+                          }
+                          return name;
+                      }
+            default: ;
+        }
+    }
+    return name;
+}
+
 int main()
 {
     return yyparse();
