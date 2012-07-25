@@ -25,7 +25,9 @@
     #include <iostream>
     #include <stack>
 
-    //#include "callgraph.h"
+    // extern "C" {
+    //   #include "sa3parsers.h"
+    // }
     
     using namespace std;
     #define YYSTYPE string
@@ -39,12 +41,14 @@
     static string func_name = "";
     static string call_params = "";
     static string file_name = "";
+    
+    // sa3cg cg = NULL;
 
     // remove all instructions (meta data -> string) from stack 
     // with largest indent than current instruction has
     static void clean_stack( meta_stack& stack, int indent );
 
-    int wrapRet = 1;
+    int  wrapRet = 1;
     
     int yylex(void);
     extern "C" {
@@ -61,9 +65,8 @@
 
     static const string type = "undefined";
     static bool isInteractive;
-    //CallGraph* callGraph;
     int main();
-    string get_call_function_name_from_call_chain(string call_chain);
+    static string get_call_function_name_from_call_chain(string call_chain);
 %}
 
 %token CLASS DEFINED COLON DOT LBRACE RBRACE ID OTHER DEF COMMA STAR MESSAGE
@@ -100,76 +103,77 @@ class_def: CLASS classname inheritance COLON suite
     }
 ;
 classname: ID
-           {
-               $$ = $1;
-           }
+            {
+                $$ = $1;
+            }
 ;
 inheritance: /* empty */
-             {
-                 $$ = "";
-             }
+            {
+                $$ = "";
+            }
            | LBRACE class_args_list RBRACE
-             {
-                 $$ = $2;
-             }
+            {
+                $$ = $2;
+            }
 ;
 class_args_list: /* empty */
-                 {
-                     $$ = "";
-                 }
+                {
+                    $$ = "";
+                }
                | class_arg
-                 {
-                     $$ = $1;
-                 }
+                {
+                    $$ = $1;
+                }
 ;
-class_arg: dotted_name
-         | class_arg COMMA dotted_name
-           {
-               $$ += $2 + $3;
-           }
+class_arg:  dotted_name
+          | class_arg COMMA dotted_name
+            {
+                $$ += $2 + $3;
+            }
 ;
 /* end of CLASS */
 
 /* FUNCTION */
 func_def: DEF funcname LBRACE func_args_list RBRACE COLON suite
-          {
-              string fnc_name = $2;
-              int indent = @1.last_column;
+        {
+            string fnc_name = $2;
+            int indent = @1.last_column;
               
-              clean_stack( class_st, indent );
-              meta_stack tmp_class_st(class_st);
+            clean_stack( class_st, indent );
+            meta_stack tmp_class_st(class_st);
 
-              while (!tmp_class_st.empty())
-              {
-                  // Delete comment to turn on full function name:
-                  //    TestClass.test_function
-                  // fnc_name = tmp_class_st.top().first + "." + fnc_name;
-                  tmp_class_st.pop();
-              }
+            while (!tmp_class_st.empty())
+            {
+                // Delete comment to turn on full function name:
+                //    TestClass.test_function
+                // fnc_name = tmp_class_st.top().first + "." + fnc_name;
+                tmp_class_st.pop();
+            }
 
-              // replace fnc_name for $2 for less information 
-              //   about function location
-              meta_data new_func(fnc_name, indent);
-              clean_stack( func_st, indent );
-              func_st.push( new_func );
+            // replace fnc_name for $2 for less information 
+            //   about function location
+            meta_data new_func(fnc_name, indent);
+            clean_stack( func_st, indent );
+            func_st.push( new_func );
 
-              #ifdef DEBUG
-                  cout //<< "[" << indent << "] " 
-                       << @$.first_line << " >> FUNC:  " 
-                       << fnc_name      << "("
-                       << $4            << ")"
-                       << endl;
-              #endif
+            #ifdef DEBUG
+                cout //<< "[" << indent << "] " 
+                     << @$.first_line << " >> FUNC:  " 
+                     << fnc_name      << "("
+                     << $4            << ")"
+                     << endl;
+            #endif
 
-             //callGraph->addDefinition( fnc_name, $4, type, @$.first_line, file_name );
-             //callGraph->addImplementation( fnc_name, $4, type, @$.first_line, file_name );
-
-          }
+            // int ret = sa3adddecl (cg, (char*) type.c_str(), (char*) fnc_name.c_str(), (char*) $4.c_str());
+            // if (0 != ret) {
+            //     cerr << "ERROR: sa3adddecl failed with " << ret << endl;
+            // }
+        }
 ;
 funcname: ID
-          {
-              $$ = $1;
-          }
+        {
+            $$ = $1;
+        }
 ;
 func_args_list: /* empty */
                 {
@@ -184,38 +188,38 @@ func_arg: dotted_name
         | star_arg
         | calls_chain
         | func_arg OTHER
-          {
-              $$ += $2;
-          }
+            {
+                $$ += $2;
+            }
         | func_arg COMMA
-          {
-              $$ += $2;
-          }
+            {
+                $$ += $2;
+            }
         | func_arg dotted_name
-          {
-              $$ += $2;
-          }
+            {
+                $$ += $2;
+            }
         | func_arg star_arg
-          {
-              $$ += $2;
-          }
+            {
+                $$ += $2;
+            }
         | func_arg MESSAGE
-          {
-              $$ += $2;
-          }
+            {
+                $$ += $2;
+            }
         | func_arg calls_chain
-          {
-              $$ += $2;
-          }
+            {
+                $$ += $2;
+            }
 ;
 star_arg: STAR ID
-          {
-              $$ = $1 + $2;
-          }
+            {
+                $$ = $1 + $2;
+            }
         | STAR STAR ID
-          {
-              $$ = $1 + $2 + $3;
-          }
+            {
+                $$ = $1 + $2 + $3;
+            }
 ;
 /* end of FUNCTION */
 
@@ -224,80 +228,90 @@ suite:
 
 /* FUNCTION CALL */
 calls_chain: func_call
-             {
+            {
+                string cd = get_call_function_name_from_call_chain($$);
                 #ifdef DEBUG
                      cout //<< "[" << @$.last_column << "] " 
                           << @$.first_line
                           << " Function1: " << func_name 
-                          << " >> CALL: "  << get_call_function_name_from_call_chain($$)
-                          << " >> PARAM: " << call_params << endl;
+                          << " >> CALL: "  << cd
+                          << " >> PARAM: " << call_params
+                          << endl;
                 #endif
 
-                //callGraph->addCall( func_name, $$, call_params, @$.first_line, file_name );
-             }
+                // int ret = sa3addcall (cg, (char*)func_name.c_str(), (char*)cd.c_str());
+                // if (0 != ret) {
+                //     cerr << "ERROR: sa3adddecl failed with " << ret << endl;
+                // }
+            }
            | calls_chain DOT func_call
-             {
+            {
                 $$ += $2 + $3;
+                string cd = get_call_function_name_from_call_chain($$);
 
                 #ifdef DEBUG
                      cout //<< "[" << @$.last_column << "] " 
                           << @$.first_line 
                           << " Function2: " << func_name 
-                          << " >> CALL: "  << get_call_function_name_from_call_chain($$)
+                          << " >> CALL: "  << cd
                           << " >> PARAM: " << call_params << endl;                     
                 #endif
-                //callGraph->addCall( func_name, $$, call_params, @$.first_line, file_name );
-             }
+
+                // int ret = sa3addcall (cg, (char*)func_name.c_str(), (char*)cd.c_str());
+                // if (0 != ret) {
+                //     cerr << "ERROR: sa3adddecl failed with " << ret << endl;
+                // }
+            }
 ;
 func_call: dotted_name func_call_params
-           {
-              bool isFirst = true;
+            {
+                bool isFirst = true;
 
-              func_name = "";
-              // if func_call_params are in more than 1 line
-              //   then indent can be unexpected
-              //   but @1 determines it correctly
-              int indent = @1.last_column;
+                func_name = "";
+                // if func_call_params are in more than 1 line
+                //   then indent can be unexpected
+                //   but @1 determines it correctly
+                int indent = @1.last_column;
 
-              clean_stack( func_st, indent );
-              meta_stack tmp_func_st(func_st);
+                clean_stack(func_st, indent);
+                meta_stack tmp_func_st(func_st);
 
-              while (!tmp_func_st.empty())
-              {
-                  if(isFirst)
-                  {
-                      func_name = tmp_func_st.top().first;
-                      tmp_func_st.pop();
-                      isFirst = false;
-                      continue;
-                  }
-                  // func_name = tmp_func_st.top().first + "." + func_name;
-                  tmp_func_st.pop();
-              }
+                while (!tmp_func_st.empty())
+                {
+                    if(true == isFirst)
+                    {
+                        func_name = tmp_func_st.top().first;
+                        tmp_func_st.pop();
+                        isFirst = false;
+                        continue;
+                    }
+                    // func_name = tmp_func_st.top().first + "." + func_name;
+                    tmp_func_st.pop();
+                }
 
-              if (func_name == "") {
-                  func_name = "__main__";
-              }
+                if (func_name == "") {
+                    func_name = "__main__";
+                }
 
-              $$ = $1 + $2;
-           }
+                $$ = $1 + $2;
+            }
 ;
 dotted_name: ID
            | dotted_name DOT ID
-             {
-                 $$ += $2 + $3;
-             }
+            {
+                $$ += $2 + $3;
+            }
 ;
 func_call_params: LBRACE RBRACE
-                  {
-                      call_params = "";
-                      $$ = $1 + $2;
-                  }
+                    {
+                        call_params = "";
+                        $$ = $1 + $2;
+                    }
                 | LBRACE call_params RBRACE
-                  {
-                      call_params = $2;
-                      $$ = $1 + $2 + $3;
-                  }
+                    {
+                        call_params = $2;
+                        $$ = $1 + $2 + $3;
+                    }
 ;
 call_params: OTHER
            | DEFINED
@@ -307,122 +321,79 @@ call_params: OTHER
            | calls_chain
            | func_call_params
            | call_params DEFINED
-             {
-                 $$ += $2;
-             }
+            {
+                $$ += $2;
+            }
            | call_params MESSAGE
-             {
-                 $$ += $2;
-             }
+            {
+                $$ += $2;
+            }
            | call_params dotted_name
-             {
-                 $$ += $2;
-             }
+            {
+                $$ += $2;
+            }
            | call_params OTHER
-             {
-                 $$ += $2;
-             }
+            {
+                $$ += $2;
+            }
            | call_params calls_chain
-             {
-                 $$ += $2;
-             }
+            {
+                $$ += $2;
+            }
            | call_params COMMA
-             {
-                 $$ += $2;
-             }
+            {
+                $$ += $2;
+            }
            | call_params COLON
-             {
-                 $$ += $2;
-             }
+            {
+                $$ += $2;
+            }
            | call_params STAR
-             {
-                 $$ += $2;
-             }
+            {
+                $$ += $2;
+            }
            | call_params func_call_params
-             {
-                 $$ += $2;
-             }
+            {
+                $$ += $2;
+            }
 ;
 /* end of FUNCTION CALL */
-/*
-other_token: dotted_name
-           | DEFINED
-           | COLON
-           | DOT
-           | OTHER
-           | COMMA
-           | STAR
-           | MESSAGE
-           | LBRACE
-           | RBRACE
-;*/
+
 %%
 
-static void clean_stack( meta_stack& stack, int indent )
+static void clean_stack(meta_stack& stack, int indent)
 {
     while(!stack.empty())
     {
-        if( indent > stack.top().second )
+        if(indent > stack.top().second)
             break;
         stack.pop();
     }
 }
 
-/*int parse( CallGraph& callGraphObj, bool isInter = false, const string fileName = "" ) {
-    int returnCode = 0;
-    
-    isInteractive = isInter;
-
-    if( true == isInter ) {
-        wrapRet = 0;
-    }
-    else {
-        wrapRet = 1;
-    }
-
-    if( fileName == "" ) {
-        file_name = "unknown";
-        yyin = stdin;
-        callGraph = &callGraphObj;
-        returnCode = yyparse();
-    }
-    else {
-        file_name = fileName;
-        FILE* file;
-        file = fopen( fileName.c_str(), "r" );
-        yyin = file;
-        callGraph = &callGraphObj;
-        returnCode = yyparse();
-        fclose( yyin );
-    }
-    return returnCode;
-}*/
-
-string get_call_function_name_from_call_chain(string call_chain)
+static string get_call_function_name_from_call_chain(string call_chain)
 {
     int braces = 0;
     string name = "";
-    for (int i = call_chain.length() - 1; i > 0; i--)
+    for (int i = call_chain.length()-1; i > 0; i--)
     {
         switch (call_chain[i])
         {
-            case ')': braces ++;
-                      continue;
-            case '(': braces --;
-                      if (braces == 0) {
-                          for (int j = i-1; j >= 0; j--)
-                          {
-                              if (call_chain[j] != '.')
-                              {
-                                  name = call_chain[j] + name;
-                              }
-                              else
-                              {
-                                  return name;
-                              }
-                          }
-                          return name;
-                      }
+            case ')':   braces ++;
+                        continue;
+            case '(':   braces --;
+                        if (braces == 0) {
+                            for (int j = i-1; j >= 0; j--)
+                            {
+                                if (call_chain[j] != '.') {
+                                    name = call_chain[j] + name;
+                                }
+                                else {
+                                    return name;
+                                }
+                            }
+                            return name;
+                        }
             default: ;
         }
     }
