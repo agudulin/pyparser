@@ -4,7 +4,7 @@ Python parser for SourceAnalyzer
 ### Features
 
 * class definition
-    
+
 ```python
 class Foo:
     pass
@@ -21,7 +21,7 @@ class Test:
 ```
     => Test.foo(a, b)
     => Test.bar(c, d)
-    
+
 
 * function call
 
@@ -32,7 +32,7 @@ foo().bar().a.b()
     => bar()
     => b()
 
-### Bugs and so on
+### Known issues
 
 * can't work with mixed spaces and tabs
 * can't define lambda functions
@@ -41,5 +41,5 @@ foo().bar().a.b()
 
 ### Links
 
-* SA3 integration: https://bitbucket.org/sagod/sourceanalyzer3-call-graph-core-with-pyparser
+* SA3 integration: https://bitbucket.org/agudulin/sourceanalyzer3-call-graph-core-with-pyparser
 * Habrahabr article: http://habrahabr.ru/post/141756/
